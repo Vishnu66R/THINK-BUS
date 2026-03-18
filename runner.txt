@@ -1,0 +1,60 @@
+Github operations
+
+To get it for first time
+git clone https://github.com/Vishnu66R/THINK-BUS.git
+cd THINK-BUS-FINAL-X
+
+To get latest changes
+git pull
+
+To add back to git
+git add .
+git commit -m "..."
+git push
+
+
+Run the Backend (FastAPI)
+
+cd backend
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn main:app --reload
+The backend runs at: **http://localhost:8000**
+
+
+Run the Frontend (React)
+cd frontend
+npm install
+npm run dev
+The frontend runs at: **http://localhost:5173**
+
+
+These users are already inserted by `setup.sql`:
+
+| Username       | Password    | Role    |
+|----------------|-------------|---------|
+| admin_user     | admin123    | Admin   |
+| student_alex   | student123  | Student |
+| parent_sara    | parent123   | Parent  |
+| driver_raju    | driver123   | Driver  |
+
+---
+
+## 🔌 API Reference
+
+### POST /signup
+```json
+Request:  { "username": "john", "password": "pass123", "role": "Student" }
+Success:  { "success": true, "message": "Account created! Welcome, Student john." }
+Failure:  { "success": false, "message": "Username already taken." }
+```
+
+### POST /login
+```json
+Request:  { "username": "john", "password": "pass123", "role": "Student" }
+Success:  { "success": true, "message": "Login successful!", "role": "Student", "username": "john" }
+Failure:  { "success": false, "message": "Invalid username, password, or role." }
+```
+
+---
