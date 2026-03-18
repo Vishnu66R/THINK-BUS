@@ -1,0 +1,7 @@
+SUPERBASE
+login : vishnur348217@gmail.com
+pass : Think_bus2026
+org : Project Work (HOE)
+project : Think Bus
+db pass : uIsgZfY1J6nVCPVJ
+uIsgZfY1J6nVCPVJ
