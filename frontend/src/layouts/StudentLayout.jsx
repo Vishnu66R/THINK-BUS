@@ -13,13 +13,15 @@ import {
   Ticket, 
   Map, 
   Bell, 
-  User 
+  User,
+  CreditCard
 } from "lucide-react";
 
 const STUDENT_NAV_ITEMS = [
   { path: "/student/dashboard",     label: "Dashboard",     icon: <LayoutDashboard size={20} /> },
   { path: "/student/pass",          label: "My Bus Pass",   icon: <Ticket size={20} /> },
   { path: "/student/planner",       label: "Planner",       icon: <Map size={20} /> },
+  { path: "/student/fees",          label: "Fees",          icon: <CreditCard size={20} /> },
   { path: "/student/notifications", label: "Notifications", icon: <Bell size={20} /> },
   { path: "/student/profile",       label: "Profile",       icon: <User size={20} /> },
 ];

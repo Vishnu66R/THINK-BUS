@@ -21,6 +21,7 @@ import RouteTraffic from "./pages/admin/RouteTraffic";
 import PeopleRegistry from "./pages/admin/PeopleRegistry";
 import Sustainability from "./pages/admin/Sustainability";
 import SystemConfig from "./pages/admin/SystemConfig";
+import AdminFees from "./pages/admin/Fees";
 
 // Student Layout & Pages
 import StudentLayout from "./layouts/StudentLayout";
@@ -29,6 +30,7 @@ import MyBusPass from "./pages/student/MyBusPass";
 import Planner from "./pages/student/Planner";
 import Notifications from "./pages/student/Notifications";
 import Profile from "./pages/student/Profile";
+import StudentFees from "./pages/student/Fees";
 
 // Parent Layout & Pages
 import ParentLayout from "./layouts/ParentLayout";
@@ -117,6 +119,7 @@ function AppRoutes({ theme, onToggleTheme }) {
         <Route path="people"         element={<PeopleRegistry />} />
         <Route path="sustainability" element={<Sustainability />} />
         <Route path="system"         element={<SystemConfig />} />
+        <Route path="fees"           element={<AdminFees />} />
       </Route>
 
       {/* ─── Student Panel ─── */}
@@ -137,6 +140,7 @@ function AppRoutes({ theme, onToggleTheme }) {
         <Route path="planner"       element={<Planner />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="profile"       element={<Profile />} />
+        <Route path="fees"          element={<StudentFees />} />
       </Route>
 
       {/* ─── Parent Panel ─── */}

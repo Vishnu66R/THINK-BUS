@@ -552,3 +552,53 @@ def list_route_stops():
         return {"success": True, "data": data}
     except Exception as e:
         return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+
+# ─── Fees Management ──────────────────────────────────────────
+
+@router.get("/fees")
+def list_admin_fees():
+    """Aggregate global fee data and individual student fee statuses."""
+    try:
+        result = supabase.table("students").select("id, full_name, adm_number, semester, fee_paid").order("id").execute()
+        
+        total_students = len(result.data)
+        total_receivables = total_students * 15000
+        
+        collected = 0
+        pending = 0
+        students_fees = []
+        
+        for s in result.data:
+            is_paid = s.get("fee_paid", "unpaid") == "paid"
+            paid_amt = 15000 if is_paid else 0
+            pending_amt = 15000 - paid_amt
+            
+            collected += paid_amt
+            pending += pending_amt
+            
+            students_fees.append({
+                "student_id": s["id"],
+                "full_name": s["full_name"],
+                "adm_number": s["adm_number"],
+                "semester": s.get("semester") or "S1",
+                "total_fee": 15000,
+                "paid_amount": paid_amt,
+                "pending_amount": pending_amt,
+                "status": "Paid" if is_paid else "Pending"
+            })
+            
+        return {
+            "success": True, 
+            "data": {
+                "aggregates": {
+                    "totalStudents": total_students,
+                    "totalReceivables": total_receivables,
+                    "totalCollected": collected,
+                    "totalPending": pending
+                },
+                "students": students_fees
+            }
+        }
+    except Exception as e:
+        print(f"[ADMIN FEES ERROR] {e}")
+        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})

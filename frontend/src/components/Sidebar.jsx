@@ -13,7 +13,8 @@ import {
   Users, 
   Leaf, 
   Settings, 
-  LogOut 
+  LogOut,
+  CreditCard
 } from "lucide-react";
 import "./Sidebar.css";
 
@@ -24,6 +25,7 @@ const DEFAULT_NAV_ITEMS = [
   { path: "/admin/routes",    label: "Route & Traffic",    icon: <Route size={20} /> },
   { path: "/admin/people",    label: "People Registry",    icon: <Users size={20} /> },
   { path: "/admin/sustainability", label: "Sustainability", icon: <Leaf size={20} /> },
+  { path: "/admin/fees",      label: "Fees Management",    icon: <CreditCard size={20} /> },
   { path: "/admin/system",    label: "System Config",      icon: <Settings size={20} /> },
 ];
 

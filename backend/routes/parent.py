@@ -229,31 +229,35 @@ def get_alerts(username: str = Query(...)):
     return {"success": True, "alerts": alerts}
 
 
-# ─── 5. Fees (mock / static data) ───
 @router.get("/fees")
 def get_fees(username: str = Query(...)):
     """
-    Return transport fee details for each child.
-    Currently uses mock data — ready for real integration later.
+    Return transport fee details for each child, extracting live database status.
     """
     parent, err = _get_parent_by_username(username)
     if err:
         return JSONResponse(status_code=404, content={"success": False, "message": err})
 
     parent_id = parent["id"]
-    students_res = supabase.table("students").select("id, full_name").eq("parent_id", parent_id).execute()
+    students_res = supabase.table("students").select("id, full_name, semester, fee_paid").eq("parent_id", parent_id).execute()
     students = students_res.data or []
 
     fees = []
     for s in students:
-        # Mock fee data per child
+        is_paid = s.get("fee_paid", "unpaid") == "paid"
+        total_fee = 15000
+        paid_amt = 15000 if is_paid else 0
+        pending_amt = total_fee - paid_amt
+        semester = s.get("semester") or "S1"
+
         fees.append({
+            "id": s["id"],
             "child_name": s["full_name"],
-            "total_fee": 15000,
-            "paid_amount": 10000,
-            "pending_amount": 5000,
-            "semester": "2025–26",
-            "status": "Partially Paid",
+            "total_fee": total_fee,
+            "paid_amount": paid_amt,
+            "pending_amount": pending_amt,
+            "semester": semester,
+            "status": "Paid" if is_paid else "Pending",
         })
 
     return {"success": True, "fees": fees}

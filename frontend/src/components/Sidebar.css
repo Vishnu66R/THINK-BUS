@@ -185,29 +185,37 @@
   
   .sidebar-nav {
     flex-direction: row;
+    flex-wrap: nowrap;
     width: calc(100% - 70px); /* Leave space for logout button */
-    padding: 0 8px;
+    padding: 0 16px;
     justify-content: flex-start;
     align-items: center;
-    overflow-y: visible;
+    overflow-y: hidden;
     overflow-x: auto;
     scroll-behavior: smooth;
-    gap: 4px;
+    gap: 12px;
   }
   
+  /* Make horizontal scrollbar visibly slim so users know to swipe/scroll */
   .sidebar-nav::-webkit-scrollbar {
-    display: none;
+    height: 4px;
+    display: block;
+  }
+  .sidebar-nav::-webkit-scrollbar-thumb {
+    background: var(--text-muted);
+    border-radius: 4px;
   }
   
   .sidebar-link {
     flex-direction: column;
-    padding: 8px 12px;
+    padding: 8px 6px;
     gap: 4px;
     border-left: none;
     border-top: 3px solid transparent;
     justify-content: center;
     flex: 0 0 auto; /* Prevent shrinking to avoid text overlap */
-    min-width: 70px;
+    width: 85px; /* Fixed width to make sure they all look uniform like tabs */
+    text-align: center;
   }
   
   .sidebar-link.active {
@@ -224,6 +232,9 @@
   
   .sidebar-link-label {
     font-size: 0.6rem;
+    white-space: normal; /* Allow long words to wrap to next line instead of overlapping */
+    line-height: 1.2;
+    text-align: center;
   }
   
   .sidebar-footer {

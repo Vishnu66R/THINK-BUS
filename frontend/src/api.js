@@ -353,6 +353,12 @@ export async function fetchAdminRouteStops() {
   return response.json();
 }
 
+// GET /admin/fees
+export async function fetchAdminFees() {
+  const response = await fetch(`${BASE_URL}/admin/fees`);
+  return response.json();
+}
+
 // ─── Student Panel API ───
 
 // GET /student/dashboard
@@ -361,3 +367,18 @@ export async function fetchStudentDashboard(username) {
   return response.json();
 }
 
+// GET /student/fees
+export async function fetchStudentFees(username) {
+  const response = await fetch(`${BASE_URL}/student/fees?username=${encodeURIComponent(username)}`);
+  return response.json();
+}
+
+// POST /student/pay-fee
+export async function payStudentFee(payload) {
+  const response = await fetch(`${BASE_URL}/student/pay-fee`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  return response.json();
+}

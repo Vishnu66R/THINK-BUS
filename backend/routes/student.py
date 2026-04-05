@@ -94,3 +94,62 @@ def get_student_dashboard(username: str):
     except Exception as e:
         print(f"[STUDENT DASHBOARD ERROR] {e}")
         return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+
+@router.get("/fees")
+def get_student_fees(username: str):
+    try:
+        user_res = supabase.table("users").select("id").eq("username", username).execute()
+        if not user_res.data:
+            return JSONResponse(status_code=404, content={"success": False, "message": "User not found"})
+        user_id = user_res.data[0]["id"]
+
+        student_res = supabase.table("students").select("id, full_name, semester, fee_paid").eq("user_id", user_id).execute()
+        if not student_res.data:
+            return JSONResponse(status_code=404, content={"success": False, "message": "Student not found"})
+        
+        student = student_res.data[0]
+        
+        # Resolve real totals based on fee_paid db column
+        is_paid = student.get("fee_paid", "unpaid") == "paid"
+        total_fee = 15000
+        paid_amt = 15000 if is_paid else 0
+        pending_amt = total_fee - paid_amt
+        
+        return {
+            "success": True,
+            "data": {
+                "student_name": student["full_name"],
+                "semester": student["semester"] or "S1",
+                "total_fee": total_fee,
+                "paid_amount": paid_amt,
+                "pending_amount": pending_amt,
+                "status": "Paid" if is_paid else "Pending"
+            }
+        }
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+
+
+class PayFeeRequest(BaseModel):
+    username: str
+    amount: float
+
+@router.post("/pay-fee")
+def pay_student_fee(req: PayFeeRequest):
+    try:
+        user_res = supabase.table("users").select("id").eq("username", req.username).execute()
+        if not user_res.data:
+            return JSONResponse(status_code=404, content={"success": False, "message": "User not found"})
+        user_id = user_res.data[0]["id"]
+
+        # Engineered endpoint to change fee_paid to "paid"
+        update_res = supabase.table("students").update({"fee_paid": "paid"}).eq("user_id", user_id).execute()
+        
+        if not update_res.data:
+            return JSONResponse(status_code=400, content={"success": False, "message": "Failed to update fee status"})
+            
+        return {"success": True, "message": "Payment successful"}
+        
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+
