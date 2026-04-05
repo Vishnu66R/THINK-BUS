@@ -1,22 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Bus, MapPin, ChevronDown, User, Mail, Phone, BookOpen, GraduationCap, Layers } from "lucide-react";
-import { studentSignup } from "../api";
+import { studentSignup, fetchRoutes, fetchRouteStops } from "../api";
 
 const DEPARTMENTS = ["Computer Science", "Electronics & Communication", "Electrical Engineering", "Mechanical Engineering", "Civil Engineering", "Information Technology"];
 const SEMESTERS = ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"];
-
-// Route 1 boarding stops — hardcoded (fixed infrastructure, no backend fetch needed)
-const BOARDING_STOPS = [
-  { id: 1, stop_name: "Karunagapally" },
-  { id: 2, stop_name: "Kuttivattom" },
-  { id: 3, stop_name: "Edapallykkotta" },
-  { id: 4, stop_name: "Sangaramangalam" },
-  { id: 5, stop_name: "Chavara" },
-  { id: 6, stop_name: "Neendakara" },
-  { id: 7, stop_name: "Shakthikulangara" },
-  { id: 8, stop_name: "Kavanadu" },
-  { id: 9, stop_name: "Kadavoor" },
-];
 
 function SignupPage({ goToLogin }) {
   const [formData, setFormData] = useState({
@@ -30,15 +17,20 @@ function SignupPage({ goToLogin }) {
     mobile_no: "",
   });
 
+  const [routes, setRoutes] = useState([]);
+  const [stops, setStops] = useState([]);
+  const [selectedRouteId, setSelectedRouteId] = useState("");
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [stopsLoading, setStopsLoading] = useState(false);
 
   // Inject styles
   useEffect(() => {
     const styleSheet = document.createElement("style");
     styleSheet.id = "signup-styles";
     styleSheet.innerText = `
+      /* ... same styles as before ... */
       @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Syne:wght@700;800&display=swap');
       * { box-sizing: border-box; }
       body { margin: 0; font-family: 'DM Sans', sans-serif; }
@@ -173,11 +165,38 @@ function SignupPage({ goToLogin }) {
       .footer-link:hover { opacity: 0.8; }
     `;
     document.head.appendChild(styleSheet);
+    
+    // Load routes
+    async function loadRoutes() {
+      const res = await fetchRoutes();
+      if (res.success) setRoutes(res.routes || []);
+    }
+    loadRoutes();
+
     return () => {
       const el = document.getElementById("signup-styles");
       if (el) document.head.removeChild(el);
     };
   }, []);
+
+  // Fetch stops when route changes
+  useEffect(() => {
+    async function loadStops() {
+      if (!selectedRouteId) {
+        setStops([]);
+        return;
+      }
+      setStopsLoading(true);
+      const res = await fetchRouteStops(selectedRouteId);
+      if (res.success) {
+        setStops(res.stops || []);
+      }
+      setStopsLoading(false);
+    }
+    loadStops();
+    // Clear stop selection when route changes
+    setFormData(prev => ({ ...prev, boarding_stop_id: "" }));
+  }, [selectedRouteId]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -315,7 +334,19 @@ function SignupPage({ goToLogin }) {
           <div className="section-label">Transport Details</div>
           <div className="form-grid">
 
-            <div className="input-group full-width">
+            <div className="input-group">
+              <label className="input-label"><Bus size={13} /> Bus Route *</label>
+              <div className="input-wrapper select-wrapper">
+                <select id="signup-route" className="glass-input"
+                  value={selectedRouteId} onChange={e => setSelectedRouteId(e.target.value)} required>
+                  <option value="">Select bus route</option>
+                  {routes.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                </select>
+                <span className="select-arrow"><ChevronDown size={16} /></span>
+              </div>
+            </div>
+
+            <div className="input-group">
               <label className="input-label"><MapPin size={13} /> Boarding Stop *</label>
               <div className="input-wrapper select-wrapper">
                 <select
@@ -325,9 +356,10 @@ function SignupPage({ goToLogin }) {
                   value={formData.boarding_stop_id}
                   onChange={handleChange}
                   required
+                  disabled={!selectedRouteId || stopsLoading}
                 >
-                  <option value="">Select your nearest stop</option>
-                  {BOARDING_STOPS.map(stop => (
+                  <option value="">{stopsLoading ? "Loading stops..." : (selectedRouteId ? "Select your nearest stop" : "Select route first")}</option>
+                  {stops.map(stop => (
                     <option key={stop.id} value={stop.id}>
                       {stop.stop_name}
                     </option>

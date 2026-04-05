@@ -10,17 +10,30 @@ router = APIRouter()
 DEFAULT_STUDENT_PASSWORD = "student@123"
 
 
+# ─── GET /routes ─────────────────────────────────────────────────────────────
+# Returns all available bus routes for signup selection.
+
+@router.get("/routes")
+def get_routes():
+    try:
+        result = supabase.table("routes").select("id, name").order("id").execute()
+        return {"success": True, "routes": result.data}
+    except Exception as e:
+        print(f"[ROUTES ERROR] {e}")
+        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+
+
 # ─── GET /route-stops ────────────────────────────────────────────────────────
-# Returns the 9 boarding stops along Route 1 (IDs 1–9).
-# The college stop (stop_order = 10) is excluded — it is the destination, not a boarding point.
+# Returns boarding stops for a specific route.
+# Defaults to Route 1 if no route_id is provided.
 
 @router.get("/route-stops")
-def get_route_stops():
+def get_route_stops(route_id: int = 1):
     try:
         result = (
             supabase.table("route_stops")
             .select("id, stop_name, stop_order")
-            .eq("route_id", 1)
+            .eq("route_id", route_id)
             .lt("stop_order", 10)          # exclude the college stop (stop_order 10)
             .order("stop_order")
             .execute()

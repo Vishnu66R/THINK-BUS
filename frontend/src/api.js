@@ -6,10 +6,21 @@
 
 const BASE_URL = "http://localhost:8000";
 
-// GET /route-stops — fetch all stops for the boarding stop dropdown
-export async function fetchRouteStops() {
+// GET /routes — fetch all available routes for signup selection
+export async function fetchRoutes() {
   try {
-    const response = await fetch(`${BASE_URL}/route-stops`);
+    const response = await fetch(`${BASE_URL}/routes`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return { success: false, routes: [], message: "Network error. Please check if backend is running." };
+  }
+}
+
+// GET /route-stops?route_id=routeId — fetch all stops for a specific route
+export async function fetchRouteStops(routeId = 1) {
+  try {
+    const response = await fetch(`${BASE_URL}/route-stops?route_id=${routeId}`);
     const data = await response.json();
     return data;
   } catch (error) {

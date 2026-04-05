@@ -186,22 +186,28 @@
   .sidebar-nav {
     flex-direction: row;
     width: calc(100% - 70px); /* Leave space for logout button */
-    padding: 0;
-    justify-content: space-around;
+    padding: 0 8px;
+    justify-content: flex-start;
     align-items: center;
     overflow-y: visible;
     overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 4px;
+  }
+  
+  .sidebar-nav::-webkit-scrollbar {
+    display: none;
   }
   
   .sidebar-link {
     flex-direction: column;
-    padding: 8px 4px;
+    padding: 8px 12px;
     gap: 4px;
     border-left: none;
     border-top: 3px solid transparent;
     justify-content: center;
-    flex: 1;
-    min-width: 60px;
+    flex: 0 0 auto; /* Prevent shrinking to avoid text overlap */
+    min-width: 70px;
   }
   
   .sidebar-link.active {

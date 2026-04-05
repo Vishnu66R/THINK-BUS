@@ -71,10 +71,6 @@ function PeopleRegistry() {
 
   // Search Flow
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState({ students: [], drivers: [] });
-  const [searchLoading, setSearchLoading] = useState(false);
-  const searchTimeout = useRef(null);
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   // Modal Flow
   const [modalOpen, setModalOpen] = useState(false);
@@ -122,33 +118,25 @@ function PeopleRegistry() {
 
   // ─── Search Handlers ───
   function handleSearchChange(e) {
-    const q = e.target.value;
-    setSearchQuery(q);
-
-    if (searchTimeout.current) clearTimeout(searchTimeout.current);
-
-    if (!q.trim()) {
-      setSearchResults({ students: [], drivers: [] });
-      setSearchLoading(false);
-      return;
-    }
-
-    setSearchLoading(true);
-    searchTimeout.current = setTimeout(async () => {
-      try {
-        const res = await adminSearch(q);
-        if (res.success && res.results) {
-          setSearchResults({
-            students: res.results.students || [],
-            drivers: res.results.drivers || []
-          });
-        }
-      } catch (err) {
-        console.error("Search API failed", err);
-      }
-      setSearchLoading(false);
-    }, 400);
+    setSearchQuery(e.target.value);
   }
+
+  // ─── Filtered Data ───
+  const filteredStudents = students.filter(s => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (s.full_name && s.full_name.toLowerCase().includes(q)) ||
+           (s.adm_number && s.adm_number.toLowerCase().includes(q)) ||
+           (s.department && s.department.toLowerCase().includes(q));
+  });
+
+  const filteredDrivers = drivers.filter(d => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (d.full_name && d.full_name.toLowerCase().includes(q)) ||
+           (d.phone_number && d.phone_number.toLowerCase().includes(q)) ||
+           (d.license_number && d.license_number.toLowerCase().includes(q));
+  });
 
   // ─── Form Openers ───
   function handleOpenAdd() {
@@ -301,47 +289,8 @@ function PeopleRegistry() {
             placeholder="Search students (name/adm#) or drivers..."
             value={searchQuery}
             onChange={handleSearchChange}
-            onFocus={() => setIsSearchFocused(true)}
-            onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
           />
         </div>
-
-        {isSearchFocused && searchQuery.trim() && (
-          <div className="pr-search-results">
-            {searchLoading ? (
-              <div className="pr-search-empty">Searching database...</div>
-            ) : searchResults.students.length === 0 && searchResults.drivers.length === 0 ? (
-              <div className="pr-search-empty">No matching personnel found.</div>
-            ) : (
-              <>
-                {searchResults.students.map(s => (
-                  <div className="pr-search-item" key={`s-${s.id}`} onClick={() => {
-                    setActiveTab("students");
-                    handleOpenEdit(s);
-                  }}>
-                    <div className="pr-search-avatar pr-avatar-student">S</div>
-                    <div className="pr-search-info">
-                      <h4>{s.full_name}</h4>
-                      <p>Adm: {s.adm_number} • Dept: {s.department}</p>
-                    </div>
-                  </div>
-                ))}
-                {searchResults.drivers.map(d => (
-                  <div className="pr-search-item" key={`d-${d.id}`} onClick={() => {
-                    setActiveTab("drivers");
-                    handleOpenEdit(d);
-                  }}>
-                    <div className="pr-search-avatar pr-avatar-driver">D</div>
-                    <div className="pr-search-info">
-                      <h4>{d.full_name}</h4>
-                      <p>License: {d.license_number} • Ph: {d.phone_number}</p>
-                    </div>
-                  </div>
-                ))}
-              </>
-            )}
-          </div>
-        )}
       </div>
 
       {/* ── Header Links ── */}
@@ -372,8 +321,8 @@ function PeopleRegistry() {
         <div className="rt-loader">Fetching registry data...</div>
       ) : activeTab === "students" ? (
         <div className="pr-grid">
-          {students.length === 0 && <div className="pr-empty" style={{gridColumn: '1/-1'}}>No students found.</div>}
-          {students.map(s => (
+          {filteredStudents.length === 0 && <div className="pr-empty" style={{gridColumn: '1/-1'}}>No students found.</div>}
+          {filteredStudents.map(s => (
             <div className="pr-card" key={s.id}>
               <div className="pr-card-header">
                 <div className="pr-search-avatar pr-avatar-student">S</div>
@@ -417,8 +366,8 @@ function PeopleRegistry() {
         </div>
       ) : (
         <div className="pr-grid">
-          {drivers.length === 0 && <div className="pr-empty" style={{gridColumn: '1/-1'}}>No drivers found.</div>}
-          {drivers.map(d => (
+          {filteredDrivers.length === 0 && <div className="pr-empty" style={{gridColumn: '1/-1'}}>No drivers found.</div>}
+          {filteredDrivers.map(d => (
             <div className="pr-card" key={d.id}>
               <div className="pr-card-header">
                 <div className="pr-search-avatar pr-avatar-driver">D</div>
