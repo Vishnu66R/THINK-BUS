@@ -1,20 +1,19 @@
 /* frontend/src/components/Header.css */
-/* Neon Glassmorphism - Top Header Bar */
+/* Neumorphic Soft UI - Top Header Bar */
 
 .admin-topbar {
   height: 64px;
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-bottom: 1px solid var(--border-glass);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 28px;
+  background: var(--bg-main);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  border-bottom: 1px solid var(--border-subtle);
+  z-index: 100;
   position: sticky;
   top: 0;
-  z-index: 50;
-  transition: background var(--transition-mid), border-color var(--transition-mid);
+  transition: background var(--transition-mid);
 }
 
 .topbar-left {
@@ -47,14 +46,15 @@
 .topbar-avatar {
   width: 36px;
   height: 36px;
-  background: var(--bg-active);
-  border: 1.5px solid var(--border-glass);
+  background: var(--neu-bg);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.1rem;
-  box-shadow: 0 0 8px rgba(var(--color-primary-rgb), 0.2);
+  box-shadow: var(--neu-shadow);
+  color: var(--color-primary);
 }
 
 .topbar-username {
@@ -99,22 +99,55 @@
 .theme-toggle-btn {
   width: 38px;
   height: 38px;
-  border: 1.5px solid var(--border-glass);
+  border: none;
   border-radius: var(--radius-full);
-  background: var(--bg-surface);
+  background: var(--neu-bg);
   color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-size: 1.1rem;
+  box-shadow: var(--neu-shadow);
   transition: all var(--transition-fast);
   flex-shrink: 0;
 }
 
-.theme-toggle-btn:hover {
-  background: var(--bg-active);
+.theme-toggle-btn:active {
+  box-shadow: var(--neu-shadow-inset);
   color: var(--color-primary);
-  border-color: var(--color-primary);
-  box-shadow: var(--glow-primary);
+  transform: scale(0.95);
 }
+
+/* ----------------------------------
+   Mobile Header Adjustments
+   --------------------------------- */
+@media (max-width: 768px) {
+  .admin-topbar {
+    padding: 0 16px;
+    height: 56px;
+  }
+  
+  .topbar-title {
+    font-size: 0.95rem;
+  }
+  
+  .topbar-right {
+    gap: 8px;
+  }
+  
+  .topbar-username {
+    display: none; /* Hide username text to save space, avatar is enough */
+  }
+  
+  .topbar-role-badge {
+    padding: 2px 6px;
+    font-size: 0.6rem;
+  }
+  
+  .theme-toggle-btn {
+    width: 32px;
+    height: 32px;
+  }
+}
+

@@ -1,5 +1,5 @@
 /* frontend/src/pages/admin/Dashboard.css */
-/* Neon Glassmorphism — Premium Admin Dashboard */
+/* Neumorphic Soft UI — Premium Admin Dashboard */
 
 /* ─── Base ─────────────────────────────── */
 .admin-dashboard {
@@ -59,15 +59,14 @@
 .dash-search-input {
   width: 100%;
   padding: 12px 16px 12px 44px;
-  border: 1.5px solid var(--border-input);
+  border: none;
   border-radius: var(--radius-lg);
   font-size: 0.875rem;
   font-family: var(--font-primary);
-  background: var(--bg-card);
+  background: var(--bg-main);
   color: var(--text-primary);
+  box-shadow: var(--neu-shadow-inset);
   transition: all var(--transition-fast);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 .dash-search-input:focus {
@@ -86,16 +85,14 @@
   top: calc(100% + 8px);
   left: 0;
   right: 0;
-  background: var(--bg-card-solid);
-  border: 1px solid var(--border-glass);
+  background: var(--bg-main);
+  border: none;
   border-radius: var(--radius-lg);
-  box-shadow: var(--glass-shadow-lg);
+  box-shadow: var(--neu-shadow);
   max-height: 400px;
   overflow-y: auto;
   z-index: 200;
   animation: dropIn 0.2s ease;
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 @keyframes dropIn {
@@ -206,10 +203,12 @@
   align-items: center;
   gap: 16px;
   color: #ffffff;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition: all var(--transition-fast);
   position: relative;
   overflow: hidden;
   cursor: default;
+  box-shadow: var(--neu-shadow);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   animation: fadeInSlide 0.5s ease-out both;
 }
 
@@ -234,8 +233,7 @@
 }
 
 .stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+  box-shadow: var(--glass-shadow-lg);
 }
 
 .stat-card-icon {
@@ -255,12 +253,16 @@
   display: flex;
   flex-direction: column;
   z-index: 1;
+  flex: 1;
+  min-width: 0;
 }
 
 .stat-card-value {
   font-size: 1.8rem;
   font-weight: 800;
   line-height: 1.1;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .stat-card-label {
@@ -282,10 +284,8 @@
 
 /* Map Placeholder */
 .map-placeholder {
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 2px dashed var(--border-glass);
+  background: var(--bg-main);
+  border: none;
   border-radius: var(--radius-lg);
   min-height: 300px;
   display: flex;
@@ -293,7 +293,8 @@
   justify-content: center;
   position: relative;
   overflow: hidden;
-  transition: border-color var(--transition-fast);
+  box-shadow: var(--neu-shadow-inset);
+  transition: all var(--transition-fast);
 }
 
 .map-placeholder:hover {
@@ -354,15 +355,15 @@
 }
 
 /* ML Alerts Panel */
-.ml-alerts-panel {
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-glass);
+.ml-alerts.fm-card {
+  background: var(--bg-main);
   border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  transition: all var(--transition-fast);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  box-shadow: var(--neu-shadow);
 }
 
 .ml-alerts-header {
@@ -406,9 +407,10 @@
   gap: 12px;
   padding: 12px;
   border-radius: var(--radius-md);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  background: var(--bg-main);
+  border: none;
+  box-shadow: var(--neu-shadow-inset);
+  transition: all var(--transition-fast);
 }
 
 .ml-alert-item:hover {
@@ -464,12 +466,11 @@
 
 /* ─── CRUD Section ──────────────────────── */
 .crud-section {
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-glass);
+  background: var(--bg-main);
+  border: none;
   border-radius: var(--radius-lg);
   overflow: hidden;
+  box-shadow: var(--neu-shadow);
 }
 
 .crud-header {
@@ -485,9 +486,10 @@
 .crud-tabs {
   display: flex;
   gap: 4px;
-  background: var(--bg-surface);
+  background: var(--bg-main);
   border-radius: var(--radius-md);
   padding: 4px;
+  box-shadow: var(--neu-shadow-inset);
 }
 
 .crud-tab {
@@ -508,9 +510,9 @@
 }
 
 .crud-tab.active {
-  background: var(--bg-card-solid);
+  background: var(--bg-main);
   color: var(--color-primary);
-  box-shadow: 0 1px 6px rgba(0,0,0,0.15);
+  box-shadow: var(--neu-shadow);
 }
 
 .crud-actions {
@@ -521,14 +523,15 @@
 
 .crud-filter-input {
   padding: 8px 14px;
-  border: 1.5px solid var(--border-input);
+  border: none;
   border-radius: var(--radius-md);
   font-size: 0.82rem;
   font-family: var(--font-primary);
-  background: var(--bg-input);
+  background: var(--bg-main);
   color: var(--text-primary);
   width: 200px;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: var(--neu-shadow-inset);
+  transition: all var(--transition-fast);
 }
 
 .crud-filter-input::placeholder {
@@ -712,14 +715,14 @@ code {
 }
 
 .modal-container {
-  background: var(--bg-card-solid);
-  border: 1px solid var(--border-glass);
+  background: var(--bg-main);
+  border: none;
   border-radius: var(--radius-xl);
   width: 520px;
   max-width: 90vw;
   max-height: 85vh;
   overflow-y: auto;
-  box-shadow: var(--glass-shadow-lg);
+  box-shadow: var(--neu-shadow);
   animation: slideUp 0.25s ease;
 }
 
@@ -788,13 +791,14 @@ code {
 .form-group input,
 .form-group select {
   padding: 10px 14px;
-  border: 1.5px solid var(--border-input);
+  border: none;
   border-radius: var(--radius-md);
   font-size: 0.875rem;
   font-family: var(--font-primary);
   color: var(--text-primary);
-  background: var(--bg-input);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  background: var(--bg-main);
+  box-shadow: var(--neu-shadow-inset);
+  transition: all var(--transition-fast);
 }
 
 .form-group input::placeholder { color: var(--text-muted); }

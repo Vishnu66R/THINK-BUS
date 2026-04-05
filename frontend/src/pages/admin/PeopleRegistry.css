@@ -1,5 +1,5 @@
 /* frontend/src/pages/admin/PeopleRegistry.css */
-/* Neon Glassmorphism — People Registry */
+/* Neumorphic Soft UI — People Registry */
 
 .registry-page {
   max-width: 1200px;
@@ -33,14 +33,13 @@
   padding: 16px 20px 16px 48px;
   font-size: 1rem;
   font-family: var(--font-primary);
-  border: 1.5px solid var(--border-input);
+  border: none;
   border-radius: var(--radius-lg);
-  background: var(--bg-card);
+  background: var(--bg-main);
   color: var(--text-primary);
   outline: none;
+  box-shadow: var(--neu-shadow-inset);
   transition: all var(--transition-fast);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 .pr-search-input::placeholder { color: var(--text-muted); }
@@ -55,18 +54,16 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: var(--bg-card-solid);
+  background: var(--bg-main);
   border-radius: var(--radius-lg);
-  box-shadow: var(--glass-shadow-lg);
-  border: 1px solid var(--border-glass);
+  box-shadow: var(--neu-shadow);
+  border: none;
   margin-top: 8px;
   z-index: 50;
   max-height: 400px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 .pr-search-item {
@@ -128,11 +125,11 @@
 
 .pr-tabs {
   display: flex;
-  background: var(--bg-surface);
+  background: var(--bg-main);
   padding: 6px;
   border-radius: var(--radius-lg);
   gap: 6px;
-  border: 1px solid var(--border-subtle);
+  box-shadow: var(--neu-shadow-inset);
 }
 
 .pr-tab-btn {
@@ -149,9 +146,9 @@
 }
 
 .pr-tab-btn.active {
-  background: var(--bg-card-solid);
+  background: var(--bg-main);
   color: var(--color-primary);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: var(--neu-shadow);
 }
 
 .pr-tab-btn:hover:not(.active) {
@@ -167,22 +164,18 @@
 }
 
 .pr-card {
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--bg-main);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border-glass);
+  border: none;
   overflow: hidden;
   transition: all var(--transition-fast);
   display: flex;
   flex-direction: column;
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--neu-shadow);
 }
 
 .pr-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--color-primary);
-  box-shadow: var(--glass-shadow-lg), 0 0 20px rgba(var(--color-primary-rgb), 0.08);
+  box-shadow: var(--glass-shadow-lg);
 }
 
 .pr-card-header {
@@ -238,7 +231,7 @@
 
 .pr-card-footer {
   padding: 12px 20px;
-  background: var(--bg-surface);
+  background: var(--bg-main);
   border-top: 1px solid var(--border-subtle);
   display: flex;
   gap: 10px;
@@ -247,11 +240,9 @@
 .pr-empty {
   text-align: center;
   padding: 80px 20px;
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--bg-main);
   border-radius: var(--radius-lg);
-  border: 1px dashed var(--border-glass);
+  box-shadow: var(--neu-shadow-inset);
   color: var(--text-muted);
 }
 

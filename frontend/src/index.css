@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
    THINK-BUS — GLOBAL DESIGN SYSTEM
-   Neon Glassmorphism | v2.0
+   Neumorphic Soft UI | v3.0
    Reference: design.txt
    ═══════════════════════════════════════════════════════════════ */
 
@@ -17,16 +17,17 @@
    DARK MODE — Modern Slate (DEFAULT)
    ═══════════════════════════════════════════════════════════════ */
 :root {
-  /* Core Backgrounds */
+  /* Core Backgrounds - Unified for Neumorphism */
   --bg-main:           #0f172a;
-  --bg-card:           rgba(30, 41, 59, 0.75);
-  --bg-card-solid:     #1e293b;
-  --bg-sidebar:        #1e293b;
-  --bg-input:          rgba(15, 23, 42, 0.6);
-  --bg-hover:          rgba(255, 255, 255, 0.04);
+  --neu-bg:            #0f172a;
+  --bg-card:           var(--neu-bg);
+  --bg-card-solid:     var(--neu-bg);
+  --bg-sidebar:        #0d1321;
+  --bg-input:          var(--neu-bg);
+  --bg-hover:          rgba(255, 255, 255, 0.03);
   --bg-active:         rgba(59, 130, 246, 0.12);
   --bg-badge:          rgba(59, 130, 246, 0.15);
-  --bg-surface:        rgba(30, 41, 59, 0.5);
+  --bg-surface:        var(--neu-bg);
 
   /* Brand Colors */
   --color-primary:     #3b82f6;
@@ -46,17 +47,21 @@
   --text-muted:        #64748b;
   --text-inverse:      #0f172a;
 
-  /* Borders */
-  --border-glass:      rgba(255, 255, 255, 0.08);
-  --border-input:      rgba(255, 255, 255, 0.12);
-  --border-subtle:     rgba(255, 255, 255, 0.06);
-  --border-strong:     rgba(255, 255, 255, 0.15);
+  /* Borders - Removed for soft UI */
+  --border-glass:      transparent;
+  --border-input:      transparent;
+  --border-subtle:     rgba(255, 255, 255, 0.05);
+  --border-strong:     rgba(255, 255, 255, 0.12);
 
-  /* Glassmorphism */
-  --glass-blur:        blur(12px);
-  --glass-reflection:  linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0));
-  --glass-shadow:      0 4px 24px -6px rgba(0, 0, 0, 0.5);
-  --glass-shadow-lg:   0 12px 48px -8px rgba(0, 0, 0, 0.6);
+  /* Neumorphic Shadows - Refined for Deep Definition */
+  --neu-shadow:        6px 6px 14px rgba(0, 0, 0, 0.8), -6px -6px 14px rgba(255, 255, 255, 0.05);
+  --neu-shadow-inset:  inset 4px 4px 8px rgba(0, 0, 0, 0.8), inset -4px -4px 8px rgba(255, 255, 255, 0.05);
+
+  /* Legacy Aliases -> Mapped to Neumorphism */
+  --glass-blur:        none;
+  --glass-reflection:  none;
+  --glass-shadow:      var(--neu-shadow);
+  --glass-shadow-lg:   var(--neu-shadow);
 
   /* Neon Glows */
   --glow-primary:      0 0 20px rgba(59, 130, 246, 0.35), 0 2px 8px rgba(59, 130, 246, 0.2);
@@ -86,15 +91,16 @@
    Applied via [data-theme="light"] on <html>
    ═══════════════════════════════════════════════════════════════ */
 [data-theme="light"] {
-  --bg-main:           #f8fafc;
-  --bg-card:           rgba(255, 255, 255, 0.85);
-  --bg-card-solid:     #ffffff;
+  --bg-main:           #ebf0f5;  /* Slightly deeper for contrast */
+  --neu-bg:            #ebf0f5;
+  --bg-card:           var(--neu-bg);
+  --bg-card-solid:     var(--neu-bg);
   --bg-sidebar:        #ffffff;
-  --bg-input:          rgba(248, 250, 252, 0.9);
+  --bg-input:          var(--neu-bg);
   --bg-hover:          rgba(37, 99, 235, 0.05);
   --bg-active:         rgba(37, 99, 235, 0.08);
   --bg-badge:          rgba(37, 99, 235, 0.1);
-  --bg-surface:        rgba(241, 245, 249, 0.8);
+  --bg-surface:        var(--neu-bg);
 
   --color-primary:     #2563eb;
   --color-primary-rgb: 37, 99, 235;
@@ -112,15 +118,19 @@
   --text-muted:        #94a3b8;
   --text-inverse:      #f1f5f9;
 
-  --border-glass:      rgba(0, 0, 0, 0.08);
-  --border-input:      rgba(0, 0, 0, 0.12);
+  --border-glass:      transparent;
+  --border-input:      transparent;
   --border-subtle:     rgba(0, 0, 0, 0.05);
-  --border-strong:     rgba(0, 0, 0, 0.15);
+  --border-strong:     rgba(0, 0, 0, 0.1);
 
-  --glass-blur:        blur(10px);
-  --glass-reflection:  linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.2));
-  --glass-shadow:      0 4px 24px -6px rgba(0, 0, 0, 0.12);
-  --glass-shadow-lg:   0 12px 48px -8px rgba(0, 0, 0, 0.18);
+  /* Neumorphic Shadows - Refined for Defined Edges */
+  --neu-shadow:        7px 7px 18px rgba(15, 23, 42, 0.18), -7px -7px 18px #ffffff;
+  --neu-shadow-inset:  inset 4px 4px 10px rgba(15, 23, 42, 0.15), inset -4px -4px 10px #ffffff;
+
+  --glass-blur:        none;
+  --glass-reflection:  none;
+  --glass-shadow:      var(--neu-shadow);
+  --glass-shadow-lg:   9px 9px 20px rgba(15, 23, 42, 0.12), -9px -9px 20px #ffffff;
 
   --glow-primary:      0 0 16px rgba(37, 99, 235, 0.2), 0 2px 8px rgba(37, 99, 235, 0.12);
   --glow-secondary:    0 0 16px rgba(124, 58, 237, 0.2), 0 2px 8px rgba(124, 58, 237, 0.12);
@@ -171,26 +181,21 @@ code, pre {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   UTILITY: GlassCard
+   UTILITY: GlassCard (Neumorphic)
    ═══════════════════════════════════════════════════════════════ */
 .glass-card {
   background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-glass);
   border-radius: var(--radius-lg);
   box-shadow: var(--glass-shadow);
-  background-image: var(--glass-reflection);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition: box-shadow var(--transition-fast);
 }
 
 .glass-card:hover {
-  transform: translateY(-4px);
   box-shadow: var(--glass-shadow-lg);
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   UTILITY: NeonButton
+   UTILITY: NeonButton (Neumorphic)
    ═══════════════════════════════════════════════════════════════ */
 .neon-btn {
   display: inline-flex;
@@ -204,63 +209,65 @@ code, pre {
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+  background: var(--neu-bg);
+  box-shadow: var(--neu-shadow);
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
 }
 
 .neon-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  box-shadow: none !important;
   transform: none !important;
+}
+
+.neon-btn:active:not(:disabled) {
+  box-shadow: var(--neu-shadow-inset);
 }
 
 /* Cyan/Blue variant */
 .neon-btn-primary {
-  background: var(--color-primary);
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(var(--color-primary-rgb), 0.3);
+  color: var(--color-primary);
 }
 
-.neon-btn-primary:hover:not(:disabled) {
-  box-shadow: var(--glow-primary);
-  transform: translateY(-2px);
+.neon-btn-primary:active:not(:disabled) {
+  box-shadow: var(--neu-shadow-inset), inset 0 0 10px rgba(var(--color-primary-rgb), 0.2);
 }
 
 /* Violet/Magenta variant */
 .neon-btn-secondary {
-  background: var(--color-secondary);
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(var(--color-secondary-rgb), 0.3);
+  color: var(--color-secondary);
 }
 
-.neon-btn-secondary:hover:not(:disabled) {
-  box-shadow: var(--glow-secondary);
-  transform: translateY(-2px);
+.neon-btn-secondary:active:not(:disabled) {
+  box-shadow: var(--neu-shadow-inset), inset 0 0 10px rgba(var(--color-secondary-rgb), 0.2);
 }
 
 /* Ghost variant */
 .neon-btn-ghost {
   background: transparent;
   color: var(--color-primary);
-  border: 1.5px solid var(--color-primary);
+  border: 1.5px solid transparent;
   box-shadow: none;
 }
 
 .neon-btn-ghost:hover:not(:disabled) {
-  background: rgba(var(--color-primary-rgb), 0.08);
-  box-shadow: var(--glow-primary);
-  transform: translateY(-2px);
+  background: var(--neu-bg);
+  box-shadow: var(--neu-shadow);
+}
+
+.neon-btn-ghost:active:not(:disabled) {
+  box-shadow: var(--neu-shadow-inset);
 }
 
 /* Danger variant */
 .neon-btn-danger {
-  background: var(--color-danger);
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(var(--color-danger-rgb), 0.3);
+  color: var(--color-danger);
 }
 
-.neon-btn-danger:hover:not(:disabled) {
-  box-shadow: var(--glow-danger);
-  transform: translateY(-2px);
+.neon-btn-danger:active:not(:disabled) {
+  box-shadow: var(--neu-shadow-inset), inset 0 0 10px rgba(var(--color-danger-rgb), 0.2);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -285,19 +292,20 @@ code, pre {
 .badge-muted     { background: var(--bg-surface);                       color: var(--text-secondary); }
 
 /* ═══════════════════════════════════════════════════════════════
-   UTILITY: Glass Input
+   UTILITY: Glass Input (Neumorphic)
    ═══════════════════════════════════════════════════════════════ */
 .glass-input {
   width: 100%;
   background: var(--bg-input);
-  border: 1px solid var(--border-input);
+  border: 1px solid transparent;
   border-radius: var(--radius-md);
   padding: 10px 16px;
   color: var(--text-primary);
   font-family: var(--font-primary);
   font-size: 0.9rem;
   outline: none;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: var(--neu-shadow-inset);
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
 }
 
 .glass-input::placeholder {
@@ -305,8 +313,7 @@ code, pre {
 }
 
 .glass-input:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.15);
+  box-shadow: var(--neu-shadow-inset), 0 0 0 1px var(--color-primary);
 }
 
 /* ═══════════════════════════════════════════════════════════════

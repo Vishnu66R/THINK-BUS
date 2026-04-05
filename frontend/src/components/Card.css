@@ -1,24 +1,20 @@
 /* frontend/src/components/Card.css */
-/* Neon Glassmorphism - GlassCard Component */
+/* Neumorphic Soft UI - GlassCard Component */
 
 .info-card {
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--bg-main);
   border-radius: var(--radius-lg);
   padding: 20px;
   display: flex;
   align-items: center;
   gap: 16px;
-  border: 1px solid var(--border-glass);
-  box-shadow: var(--glass-shadow);
-  background-image: var(--glass-reflection);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--neu-shadow);
+  transition: all var(--transition-fast);
   animation: fadeInSlide 0.5s ease-out both;
 }
 
 .info-card:hover {
-  transform: translateY(-4px);
   box-shadow: var(--glass-shadow-lg);
 }
 
@@ -31,7 +27,9 @@
   justify-content: center;
   font-size: 1.4rem;
   flex-shrink: 0;
-  border: 1px solid var(--border-glass);
+  background: var(--bg-main);
+  box-shadow: var(--neu-shadow-inset);
+  color: var(--color-primary);
 }
 
 .info-card-body {

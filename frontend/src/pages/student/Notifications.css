@@ -1,5 +1,5 @@
 /* frontend/src/pages/student/Notifications.css */
-/* Neon Glassmorphism — Notifications */
+/* Neumorphic Soft UI — Notifications */
 
 .notif-header { margin-bottom: 24px; }
 
@@ -23,29 +23,26 @@
 }
 
 .notif-item {
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-glass);
+  background: var(--bg-main);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 16px 20px;
   display: flex;
   align-items: flex-start;
   gap: 14px;
   cursor: pointer;
+  box-shadow: var(--neu-shadow);
   transition: all var(--transition-fast);
   position: relative;
 }
 
 .notif-item:hover {
-  background: var(--bg-hover);
-  border-color: var(--color-primary);
+  box-shadow: var(--glass-shadow-lg);
   transform: translateX(4px);
 }
 
 .notif-item.unread {
-  background: rgba(var(--color-primary-rgb), 0.08);
-  border-color: rgba(var(--color-primary-rgb), 0.25);
+  box-shadow: var(--neu-shadow), inset 0 0 10px rgba(var(--color-primary-rgb), 0.05);
 }
 
 .notif-left { flex-shrink: 0; margin-top: 2px; }

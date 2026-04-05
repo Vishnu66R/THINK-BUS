@@ -84,8 +84,8 @@ function Summary() {
             <Route size={20} />
           </span>
           <div className="stat-body">
-            <span className="stat-value">{summary.route_name}</span>
             <span className="stat-label">Route</span>
+            <span className="stat-value">{summary.route_name}</span>
           </div>
         </div>
 
@@ -94,8 +94,8 @@ function Summary() {
             <Bus size={20} />
           </span>
           <div className="stat-body">
-            <span className="stat-value">{summary.bus_number}</span>
             <span className="stat-label">Bus Number</span>
+            <span className="stat-value">{summary.bus_number}</span>
           </div>
         </div>
 
@@ -104,8 +104,8 @@ function Summary() {
             <MapPin size={20} />
           </span>
           <div className="stat-body">
-            <span className="stat-value">{summary.total_stops}</span>
             <span className="stat-label">Total Stops</span>
+            <span className="stat-value">{summary.total_stops}</span>
           </div>
         </div>
 
@@ -114,8 +114,8 @@ function Summary() {
             <Users size={20} />
           </span>
           <div className="stat-body">
-            <span className="stat-value">{summary.total_students}</span>
             <span className="stat-label">Students on Bus</span>
+            <span className="stat-value">{summary.total_students}</span>
           </div>
         </div>
 
@@ -124,8 +124,8 @@ function Summary() {
             <Clock size={20} />
           </span>
           <div className="stat-body">
-            <span className="stat-value">{summary.route_duration_mins} min</span>
             <span className="stat-label">Route Duration</span>
+            <span className="stat-value">{summary.route_duration_mins} min</span>
           </div>
         </div>
 
@@ -137,8 +137,8 @@ function Summary() {
             {summary.bus_status === "Active" ? <CheckCircle size={20} /> : <AlertTriangle size={20} />}
           </span>
           <div className="stat-body">
-            <span className="stat-value">{summary.bus_status}</span>
             <span className="stat-label">Bus Status</span>
+            <span className="stat-value">{summary.bus_status}</span>
           </div>
         </div>
       </div>

@@ -20,6 +20,7 @@ function Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showMap, setShowMap] = useState(false);
   const [selectedChildId, setSelectedChildId] = useState(null);
   const retryCount = useRef(0);
 
@@ -95,8 +96,8 @@ function Dashboard() {
             <Users size={24} />
           </span>
           <div className="summary-body">
-            <span className="summary-value">{data.total_children}</span>
             <span className="summary-label">Total Children</span>
+            <span className="summary-value">{data.total_children}</span>
           </div>
         </div>
         <div className="summary-card">
@@ -104,8 +105,8 @@ function Dashboard() {
             <CheckCircle size={24} />
           </span>
           <div className="summary-body">
-            <span className="summary-value">{data.active_children}</span>
             <span className="summary-label">Active</span>
+            <span className="summary-value">{data.active_children}</span>
           </div>
         </div>
         <div className="summary-card">
@@ -113,8 +114,8 @@ function Dashboard() {
             {data.rerouted_buses > 0 ? <AlertTriangle size={24} /> : <CheckCircle size={24} />}
           </span>
           <div className="summary-body">
-            <span className="summary-value">{data.rerouted_buses}</span>
             <span className="summary-label">Rerouted Buses</span>
+            <span className="summary-value">{data.rerouted_buses}</span>
           </div>
         </div>
       </div>
@@ -163,54 +164,67 @@ function Dashboard() {
       </div>
 
       {/* Live Bus Tracking Map */}
-      <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 className="section-title" style={{ margin: 0 }}>Live Bus Tracking</h3>
-        {data.children.length > 1 && (
-          <select 
-            value={selectedChildId} 
-            onChange={e => setSelectedChildId(parseInt(e.target.value))}
-            style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', cursor: 'pointer', backgroundColor: '#f8fafc' }}
-          >
-            {data.children.map(c => (
-              <option key={c.id} value={c.id}>{c.full_name}</option>
-            ))}
-          </select>
-        )}
+      <div style={{ marginTop: '30px', marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 className="section-title" style={{ margin: 0 }}>Live Bus Tracking</h3>
+          {data.children.length > 1 && (
+            <select 
+              value={selectedChildId} 
+              onChange={e => setSelectedChildId(parseInt(e.target.value))}
+              style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-subtle)', fontSize: '0.9rem', outline: 'none', cursor: 'pointer', backgroundColor: 'var(--bg-surface)', color: 'var(--text-primary)' }}
+            >
+              {data.children.map(c => (
+                <option key={c.id} value={c.id}>{c.full_name}</option>
+              ))}
+            </select>
+          )}
+        </div>
+        
+        <button 
+          onClick={() => setShowMap(!showMap)}
+          className="neon-button"
+          style={{ width: '100%', padding: '14px', fontSize: '1rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', cursor: 'pointer', borderRadius: '12px', border: 'none', background: 'var(--color-primary)', color: '#fff', fontWeight: 'bold', boxShadow: 'var(--glow-primary)', transition: 'all 0.3s ease' }}
+        >
+          <MapIcon size={20} />
+          {showMap ? "Hide Map & Location" : "View Map & Assigned Location"}
+        </button>
       </div>
 
-      <div className="admin-map-card" style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0', width: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
-        {selectedChildId ? (
-          (() => {
-            const childData = data.children.find(c => c.id === selectedChildId);
-            const stops = childData?.stops || [];
-            const validStops = stops.filter(s => s.lat !== 0 || s.lng !== 0);
-            const boardingStop = validStops.find(s => s.isBoarding);
-            
-            return validStops.length > 0 ? (
-              <MapView 
-                key={selectedChildId}
-                stops={validStops} 
-                height="500px"
-                center={boardingStop ? [boardingStop.lat, boardingStop.lng] : [validStops[0].lat, validStops[0].lng]}
-                zoom={parseInt(data.map_config?.default_zoom || '13')}
-                tileUrl={data.map_config?.osm_tile_url}
-              />
-            ) : (
-              <div style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '12px', color: '#94a3b8' }}>
-                  <MapIcon size={48} />
+      {showMap && (
+        <div className="admin-map-card" style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border-glass)', width: '100%', boxSizing: 'border-box', overflow: 'hidden', boxShadow: 'var(--glass-shadow-lg)' }}>
+          {selectedChildId ? (
+            (() => {
+              const childData = data.children.find(c => c.id === selectedChildId);
+              const stops = childData?.stops || [];
+              const validStops = stops.filter(s => s.lat !== 0 || s.lng !== 0);
+              const boardingStop = validStops.find(s => s.isBoarding);
+              
+              return validStops.length > 0 ? (
+                <MapView 
+                  key={selectedChildId}
+                  stops={validStops} 
+                  height="500px"
+                  center={boardingStop ? [boardingStop.lat, boardingStop.lng] : [validStops[0].lat, validStops[0].lng]}
+                  zoom={parseInt(data.map_config?.default_zoom || '13')}
+                  tileUrl={data.map_config?.osm_tile_url}
+                />
+              ) : (
+                <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  <div style={{ fontSize: '3rem', marginBottom: '12px', color: 'var(--text-muted)' }}>
+                    <MapIcon size={48} />
+                  </div>
+                  <h3 style={{ fontSize: '1.3rem', color: 'var(--text-primary)', margin: '0 0 8px' }}>Map Data Unavailable</h3>
+                  <p style={{ margin: 0, color: 'var(--text-secondary)' }}>No GPS coordinates found for <strong>{childData?.full_name}</strong>'s route.</p>
                 </div>
-                <h3 style={{ fontSize: '1.3rem', color: '#1e293b', margin: '0 0 8px' }}>Map Data Unavailable</h3>
-                <p style={{ margin: 0 }}>No GPS coordinates found for <strong>{childData?.full_name}</strong>'s route.</p>
-              </div>
-            );
-          })()
-        ) : (
-          <div style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
-             No children linked to this account for tracking.
-          </div>
-        )}
-      </div>
+              );
+            })()
+          ) : (
+            <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-muted)' }}>
+               No children linked to this account for tracking.
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

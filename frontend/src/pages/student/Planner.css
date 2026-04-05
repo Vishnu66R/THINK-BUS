@@ -1,5 +1,5 @@
 /* frontend/src/pages/student/Planner.css */
-/* Neon Glassmorphism — Route Planner */
+/* Neumorphic Soft UI — Route Planner */
 
 .planner-header { margin-bottom: 24px; }
 
@@ -38,15 +38,13 @@
 
 /* Route List Panel */
 .route-list-panel {
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--bg-main);
   border-radius: var(--radius-lg);
   padding: 20px;
-  border: 1px solid var(--border-glass);
+  border: 1px solid var(--border-subtle);
   overflow-y: auto;
   max-height: 600px;
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--neu-shadow);
 }
 
 .route-list-item {
@@ -67,8 +65,9 @@
 }
 
 .route-list-item.selected {
-  background: var(--bg-active);
-  border: 1px solid rgba(var(--color-primary-rgb), 0.3);
+  background: var(--bg-main);
+  box-shadow: var(--neu-shadow-inset);
+  color: var(--color-primary);
 }
 
 .route-list-icon { font-size: 1.3rem; flex-shrink: 0; }
@@ -88,13 +87,11 @@
 
 /* Route Detail Panel */
 .route-detail-panel {
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--bg-main);
   border-radius: var(--radius-lg);
   padding: 24px;
-  border: 1px solid var(--border-glass);
-  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--neu-shadow);
 }
 
 .route-detail-meta {
@@ -137,17 +134,17 @@
 }
 
 .stop-marker {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: rgba(var(--color-primary-rgb), 0.15);
-  border: 2px solid var(--color-primary);
+  background: var(--bg-main);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   z-index: 1;
-  box-shadow: 0 0 8px rgba(var(--color-primary-rgb), 0.3);
+  box-shadow: var(--neu-shadow-inset);
 }
 
 .stop-number {

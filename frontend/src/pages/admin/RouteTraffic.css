@@ -1,5 +1,5 @@
 /* frontend/src/pages/admin/RouteTraffic.css */
-/* Neon Glassmorphism — Route & Traffic */
+/* Neumorphic Soft UI — Route & Traffic */
 
 .route-traffic-page {
   max-width: 1200px;
@@ -9,17 +9,15 @@
 
 /* ── Map Widget ── */
 .rt-map-widget {
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px dashed var(--border-glass);
+  background: var(--bg-main);
+  border: none;
   border-radius: var(--radius-lg);
   padding: 40px;
   text-align: center;
   margin-bottom: 24px;
   position: relative;
   overflow: hidden;
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--neu-shadow-inset);
 }
 
 .rt-map-bg {
@@ -72,13 +70,14 @@
   width: 44px;
   height: 44px;
   border-radius: var(--radius-md);
-  background: rgba(var(--color-primary-rgb), 0.15);
-  border: 1px solid rgba(var(--color-primary-rgb), 0.2);
+  background: var(--bg-main);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.4rem;
   color: var(--color-primary);
+  box-shadow: var(--neu-shadow-inset);
 }
 
 .rt-section-title h2 {
@@ -107,18 +106,15 @@
 }
 
 .rt-card {
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--bg-main);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border-glass);
+  border: 1px solid var(--border-subtle);
   overflow: hidden;
   transition: all var(--transition-fast);
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--neu-shadow);
 }
 
 .rt-card:hover {
-  border-color: rgba(var(--color-primary-rgb), 0.3);
   box-shadow: var(--glass-shadow-lg);
 }
 
@@ -172,8 +168,8 @@
 }
 
 .rt-action-btn {
-  background: transparent;
-  border: 1px solid var(--border-glass);
+  background: var(--bg-main);
+  border: none;
   padding: 6px 14px;
   border-radius: var(--radius-sm);
   font-size: 0.82rem;
@@ -181,7 +177,12 @@
   font-family: var(--font-primary);
   color: var(--text-secondary);
   cursor: pointer;
+  box-shadow: var(--neu-shadow);
   transition: all var(--transition-fast);
+}
+
+.rt-action-btn:active {
+  box-shadow: var(--neu-shadow-inset);
 }
 
 .rt-action-btn:hover {
@@ -214,7 +215,7 @@
 /* ── Stops Timeline ── */
 .rt-stops-body {
   padding: 0 20px 20px 60px;
-  background: var(--bg-surface);
+  background: var(--bg-main);
   border-top: 1px solid var(--border-subtle);
 }
 
@@ -283,10 +284,11 @@
 /* ── Stop Builder Form ── */
 .rt-stop-builder {
   margin-top: 20px;
-  background: var(--bg-surface);
+  background: var(--bg-main);
   border-radius: var(--radius-md);
   padding: 16px;
-  border: 1px solid var(--border-glass);
+  border: none;
+  box-shadow: var(--neu-shadow-inset);
 }
 
 .rt-stop-builder h4 {
@@ -321,23 +323,25 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 10px;
-  background: var(--bg-card);
+  background: var(--bg-main);
   padding: 8px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border-subtle);
+  border: none;
+  box-shadow: var(--neu-shadow);
 }
 
 .rt-stop-row input {
   flex: 1;
   padding: 8px 12px;
-  border: 1px solid var(--border-input);
+  border: none;
   border-radius: var(--radius-sm);
   font-size: 0.85rem;
   font-family: var(--font-primary);
-  background: var(--bg-input);
+  background: var(--bg-main);
   color: var(--text-primary);
   outline: none;
-  transition: border-color var(--transition-fast);
+  box-shadow: var(--neu-shadow-inset);
+  transition: all var(--transition-fast);
 }
 
 .rt-stop-row input::placeholder { color: var(--text-muted); }
@@ -373,9 +377,8 @@
 .rt-empty {
   text-align: center;
   padding: 60px 20px;
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--bg-main);
   border-radius: var(--radius-lg);
-  border: 1px dashed var(--border-glass);
+  border: none;
+  box-shadow: var(--neu-shadow-inset);
 }

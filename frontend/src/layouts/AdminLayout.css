@@ -29,3 +29,19 @@
   background: var(--bg-main);
   transition: background var(--transition-mid);
 }
+
+@media (max-width: 768px) {
+  .admin-layout {
+    flex-direction: column;
+  }
+  
+  .admin-main {
+    margin-left: 0;
+  }
+
+  .admin-content {
+    /* 16px normal padding + 70px space for bottom nav + 20px extra breathing room */
+    padding: 16px 16px 100px 16px;
+  }
+}
+

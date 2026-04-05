@@ -1,5 +1,5 @@
 /* frontend/src/pages/admin/FleetManager.css */
-/* Neon Glassmorphism — Fleet Manager */
+/* Neumorphic Soft UI — Fleet Manager */
 
 .fleet-manager {
   max-width: 1200px;
@@ -25,13 +25,14 @@
   width: 44px;
   height: 44px;
   border-radius: var(--radius-md);
-  background: rgba(var(--color-secondary-rgb), 0.15);
-  border: 1px solid rgba(var(--color-secondary-rgb), 0.2);
+  background: var(--bg-main);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.4rem;
   color: var(--color-secondary);
+  box-shadow: var(--neu-shadow-inset);
 }
 
 .fm-title h2 {
@@ -86,11 +87,10 @@
 .fm-empty {
   text-align: center;
   padding: 80px 20px;
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--bg-main);
   border-radius: var(--radius-lg);
-  border: 1px dashed var(--border-glass);
+  border: none;
+  box-shadow: var(--neu-shadow-inset);
 }
 
 .fm-empty-icon {
@@ -117,23 +117,27 @@
   gap: 20px;
 }
 
-.fm-card {
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+.pr-card {
+  background: var(--bg-main);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border-glass);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  transition: all var(--transition-fast);
+}
+
+.fm-card {
+  background: var(--bg-main);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
   overflow: hidden;
   transition: all var(--transition-fast);
   display: flex;
   flex-direction: column;
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--neu-shadow);
 }
 
 .fm-card:hover {
-  border-color: var(--color-primary);
-  box-shadow: var(--glass-shadow-lg), 0 0 20px rgba(var(--color-primary-rgb), 0.1);
-  transform: translateY(-4px);
+  box-shadow: var(--glass-shadow-lg);
 }
 
 .fm-card-header {
@@ -212,7 +216,7 @@
 
 .fm-card-footer {
   padding: 14px 20px;
-  background: var(--bg-surface);
+  background: var(--bg-main);
   border-top: 1px solid var(--border-subtle);
   display: flex;
   gap: 10px;
@@ -230,8 +234,14 @@
   font-weight: 600;
   font-family: var(--font-primary);
   cursor: pointer;
+  background: var(--bg-main);
+  box-shadow: var(--neu-shadow);
   transition: all var(--transition-fast);
-  border: 1px solid var(--border-glass);
+  border: none;
+}
+
+.fm-action-btn:active {
+  box-shadow: var(--neu-shadow-inset);
 }
 
 .fm-btn-edit {
@@ -281,12 +291,12 @@
 }
 
 .fm-modal {
-  background: var(--bg-card-solid);
-  border: 1px solid var(--border-glass);
+  background: var(--bg-main);
+  border: none;
   width: 100%;
   max-width: 460px;
   border-radius: var(--radius-xl);
-  box-shadow: var(--glass-shadow-lg);
+  box-shadow: var(--neu-shadow);
   overflow: hidden;
   animation: slideUp 0.3s ease;
 }
@@ -340,13 +350,14 @@
 .fm-form-group select {
   width: 100%;
   padding: 10px 14px;
-  border: 1.5px solid var(--border-input);
+  border: none;
   border-radius: var(--radius-md);
   font-size: 0.9rem;
   color: var(--text-primary);
-  background: var(--bg-input);
+  background: var(--bg-main);
   font-family: var(--font-primary);
   outline: none;
+  box-shadow: var(--neu-shadow-inset);
   transition: all var(--transition-fast);
 }
 
@@ -360,7 +371,7 @@
 
 .fm-modal-footer {
   padding: 20px 24px;
-  background: var(--bg-surface);
+  background: var(--bg-main);
   border-top: 1px solid var(--border-subtle);
   display: flex;
   justify-content: flex-end;
@@ -405,7 +416,7 @@
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
-  box-shadow: none;
+  box-shadow: none !important;
 }
 
 .fm-confirm-icon {
@@ -452,8 +463,8 @@
   right: 30px;
   padding: 14px 20px;
   border-radius: var(--radius-lg);
-  background: var(--bg-card-solid);
-  border: 1px solid var(--border-glass);
+  background: var(--bg-main);
+  border: none;
   color: var(--text-primary);
   font-size: 0.9rem;
   font-weight: 600;
@@ -461,9 +472,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: var(--glass-shadow-lg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--neu-shadow);
   z-index: 2000;
   animation: toastIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }

@@ -299,8 +299,8 @@ function Dashboard() {
             <div className="stat-card" key={i} id={`stat-card-${i}`} style={{ background: card.gradient }}>
               <div className="stat-card-icon">{card.icon}</div>
               <div className="stat-card-info">
-                <span className="stat-card-value">{card.value}</span>
                 <span className="stat-card-label">{card.label}</span>
+                <span className="stat-card-value">{card.value}</span>
               </div>
             </div>
           ))}
