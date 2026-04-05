@@ -14,6 +14,7 @@ import {
   Flag 
 } from "lucide-react";
 import { fetchDriverRoute, fetchDriverSummary } from "../../api";
+import { useSimulatedDateTime } from "../../hooks/useSimulatedDateTime";
 import "./DriverPages.css";
 
 function MyRoute() {
@@ -22,6 +23,7 @@ function MyRoute() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const retryCount = useRef(0);
+  const simDT = useSimulatedDateTime();
 
   const username = JSON.parse(localStorage.getItem("thinkbus_user"))?.username || "";
 
@@ -95,6 +97,9 @@ function MyRoute() {
       <div className="driver-page-header">
         <h2>Dashboard Overview</h2>
         <p className="driver-page-subtitle">Your live route tracker and passenger count</p>
+        <p style={{ margin: "6px 0 0", fontSize: "13px", color: "#6366f1", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px" }}>
+          📅 {simDT.date} &nbsp;·&nbsp; 🕐 {simDT.time}
+        </p>
       </div>
 
       {/* Primary Info Cards */}

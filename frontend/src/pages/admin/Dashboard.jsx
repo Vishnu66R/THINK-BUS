@@ -11,6 +11,7 @@ import {
   fetchAdminBuses,
   fetchAdminBusStops
 } from "../../api";
+import { useSimulatedDateTime } from "../../hooks/useSimulatedDateTime";
 import { 
   LayoutDashboard, 
   Bus, 
@@ -30,17 +31,13 @@ import {
 import MapView from "../../components/MapView";
 import "./Dashboard.css";
 
-// ─── Helper: format today's date ───
-function formatDate() {
-  return new Date().toLocaleDateString("en-IN", {
-    weekday: "long", year: "numeric", month: "long", day: "numeric",
-  });
-}
+
 
 function Dashboard() {
   // ─── State ───
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const simDT = useSimulatedDateTime();
 
   // Map State
   const [buses, setBuses] = useState([]);
@@ -287,7 +284,7 @@ function Dashboard() {
         {/* Welcome */}
         <div className="dash-welcome" id="dash-welcome">
           <span className="dash-welcome-text">Welcome, Admin</span>
-          <span className="dash-welcome-date">{formatDate()}</span>
+          <span className="dash-welcome-date">{simDT.formatted}</span>
         </div>
       </div>
 

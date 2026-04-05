@@ -13,6 +13,7 @@ import {
   Map as MapIcon 
 } from "lucide-react";
 import { fetchParentDashboard } from "../../api";
+import { useSimulatedDateTime } from "../../hooks/useSimulatedDateTime";
 import MapView from "../../components/MapView";
 import "./ParentPages.css";
 
@@ -23,6 +24,7 @@ function Dashboard() {
   const [showMap, setShowMap] = useState(false);
   const [selectedChildId, setSelectedChildId] = useState(null);
   const retryCount = useRef(0);
+  const simDT = useSimulatedDateTime();
 
   // Get username from localStorage (set during login)
   const username = JSON.parse(localStorage.getItem("thinkbus_user"))?.username || "";
@@ -87,6 +89,9 @@ function Dashboard() {
       <div className="parent-page-header">
         <h2>Welcome, {data.parent_name}</h2>
         <p className="parent-page-subtitle">Here's an overview of your children's transport status</p>
+        <p style={{ margin: "6px 0 0", fontSize: "13px", color: "#6366f1", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px" }}>
+          📅 {simDT.date} &nbsp;·&nbsp; 🕐 {simDT.time}
+        </p>
       </div>
 
       {/* Summary cards */}

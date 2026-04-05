@@ -382,3 +382,29 @@ export async function payStudentFee(payload) {
   });
   return response.json();
 }
+
+// ─── Simulated DateTime API ───
+
+// POST /admin/simulate-datetime — save simulated date + time
+export async function saveSimulatedDateTime(sim_date, sim_time) {
+  try {
+    const response = await fetch(`${BASE_URL}/admin/simulate-datetime`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sim_date, sim_time }),
+    });
+    return response.json();
+  } catch {
+    return { success: false, message: "Network error." };
+  }
+}
+
+// GET /admin/simulate-datetime — fetch current simulated date/time
+export async function fetchSimulatedDateTime() {
+  try {
+    const response = await fetch(`${BASE_URL}/admin/simulate-datetime`);
+    return response.json();
+  } catch {
+    return { success: false, data: null };
+  }
+}

@@ -16,6 +16,7 @@ import {
   User 
 } from "lucide-react";
 import { fetchStudentDashboard } from "../../api";
+import { useSimulatedDateTime } from "../../hooks/useSimulatedDateTime";
 import MapView from "../../components/MapView";
 import "./StudentDashboard.css";
 
@@ -25,6 +26,7 @@ function Dashboard() {
   const [error, setError] = useState("");
   const [showMap, setShowMap] = useState(false);
   const retryCount = useRef(0);
+  const simDT = useSimulatedDateTime();
 
   const username = JSON.parse(localStorage.getItem("thinkbus_user"))?.username || "";
 
@@ -93,6 +95,9 @@ function Dashboard() {
         <h2 className="student-dash-title">Dashboard</h2>
         <p className="student-dash-desc">
           Welcome, <strong>{busInfo.student_name}</strong>! Here's your transport info.
+        </p>
+        <p style={{ margin: "6px 0 0", fontSize: "13px", color: "#6366f1", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px" }}>
+          📅 {simDT.date} &nbsp;·&nbsp; 🕐 {simDT.time}
         </p>
       </div>
 

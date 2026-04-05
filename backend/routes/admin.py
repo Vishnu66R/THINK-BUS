@@ -602,3 +602,38 @@ def list_admin_fees():
     except Exception as e:
         print(f"[ADMIN FEES ERROR] {e}")
         return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+
+
+# ─── Simulated Date / Time ────────────────────────────────────
+
+class DateTimePayload(BaseModel):
+    sim_date: str  # e.g. "2026-04-05"
+    sim_time: str  # e.g. "08:30"
+
+@router.post("/simulate-datetime")
+def save_simulate_datetime(payload: DateTimePayload):
+    """Upsert simulated date and time into the date_time table (always row id=1)."""
+    try:
+        supabase.table("date_time").upsert({
+            "id": 1,
+            "date": payload.sim_date,
+            "time": payload.sim_time,
+        }).execute()
+        return {"success": True, "message": "Simulated date/time saved"}
+    except Exception as e:
+        print(f"[SIMULATE DATETIME ERROR] {e}")
+        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+
+@router.get("/simulate-datetime")
+def get_simulate_datetime():
+    """Fetch the currently saved simulated date/time."""
+    try:
+        result = supabase.table("date_time").select("*").eq("id", 1).execute()
+        if result.data:
+            row = result.data[0]
+            # Normalise: return as sim_date/sim_time so frontend hook stays unchanged
+            return {"success": True, "data": {"sim_date": row.get("date"), "sim_time": row.get("time")}}
+        return {"success": True, "data": None}
+    except Exception as e:
+        print(f"[GET SIMULATE DATETIME ERROR] {e}")
+        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
