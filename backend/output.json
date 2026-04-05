@@ -1,0 +1,44 @@
+[
+  {
+    "bus_id": 1,
+    "registration": "KL-02-B-2001",
+    "probability": "20.70%",
+    "risk_category": "Low"
+  },
+  {
+    "bus_id": 2,
+    "registration": "KL-02-B-2002",
+    "probability": "26.26%",
+    "risk_category": "Low"
+  },
+  {
+    "bus_id": 3,
+    "registration": "KL-02-B-2003",
+    "probability": "36.37%",
+    "risk_category": "Medium"
+  },
+  {
+    "bus_id": 4,
+    "registration": "KL-02-B-2004",
+    "probability": "91.27%",
+    "risk_category": "High"
+  },
+  {
+    "bus_id": 5,
+    "registration": "KL-02-B-2005",
+    "probability": "91.41%",
+    "risk_category": "High"
+  },
+  {
+    "bus_id": 6,
+    "registration": "KL-02-B-2006",
+    "probability": "92.21%",
+    "risk_category": "High"
+  },
+  {
+    "bus_id": 7,
+    "registration": "KL-02-B-2007",
+    "probability": "28.25%",
+    "risk_category": "Low"
+  }
+]
