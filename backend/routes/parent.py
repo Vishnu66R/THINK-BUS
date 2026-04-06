@@ -106,6 +106,7 @@ def get_children(username: str = Query(...)):
             "adm_number": s.get("adm_number", ""),
             "semester": s.get("semester", ""),
             "department": s.get("department", ""),
+            "route_id": s.get("default_route_id"),
             "route_name": route_name,
             "stop_name": stop_name,
             "bus_number": bus_number,

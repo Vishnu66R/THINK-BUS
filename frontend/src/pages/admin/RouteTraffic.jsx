@@ -292,6 +292,7 @@ function RouteTraffic() {
             <MapView 
               key={selectedBusId}
               stops={mapStops.filter(s => s.lat !== 0 && s.lng !== 0)} 
+              routeId={buses.find(b => b.id == selectedBusId)?.route_id}
               center={[mapStops[0].lat, mapStops[0].lng]}
               height="500px" 
             />

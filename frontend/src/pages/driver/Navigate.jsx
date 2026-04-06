@@ -160,6 +160,7 @@ function Navigate() {
         {stops && stops.length > 0 ? (
           <MapView 
             stops={stops.filter(s => s.lat !== 0 || s.lng !== 0)} 
+            routeId={data.route?.id}
             height="500px"
             center={stops[currentStopIdx] ? [stops[currentStopIdx].lat, stops[currentStopIdx].lng] : [8.8932, 76.6141]}
             zoom={parseInt(data.map_config?.default_zoom || '13')}

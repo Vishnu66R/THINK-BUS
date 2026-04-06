@@ -166,6 +166,7 @@ function Summary() {
         {summary.stops && summary.stops.length > 0 ? (
           <MapView 
             stops={summary.stops.filter(s => s.lat !== 0 || s.lng !== 0)} 
+            routeId={summary?.route_id}
             height="500px"
             center={summary.stops[0] ? [summary.stops[0].lat, summary.stops[0].lng] : [8.8932, 76.6141]}
             zoom={parseInt(summary.map_config?.default_zoom || '13')}

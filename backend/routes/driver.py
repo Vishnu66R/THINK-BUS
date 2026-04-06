@@ -191,6 +191,7 @@ def get_trip_summary(username: str = Query(...)):
         "success": True,
         "summary": {
             "bus_number": bus["registration_number"],
+            "route_id": bus.get("route_id"),
             "route_name": route.get("name", "—"),
             "total_stops": total_stops,
             "total_students": total_students,

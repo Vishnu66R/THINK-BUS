@@ -17,7 +17,22 @@ L.Icon.Default.mergeOptions({
 });
 
 // Component to dynamically fetch and draw OSRM route, and fit bounds to it
-function RealRoadRoute({ stops }) {
+function RealRoadRoute({ stops, routeId }) {
+  // Define color schemes based on routeId
+  const getRouteColors = (id) => {
+    switch (id) {
+      case 1: return { inner: '#0066ff', outer: '#001d66' }; // blue
+      case 2: return { inner: '#ef4444', outer: '#7f1d1d' }; // red
+      case 3: return { inner: '#16a34a', outer: '#064e3b' }; // dark green
+      case 4: return { inner: '#eab308', outer: '#713f12' }; // yellow
+      case 5: return { inner: '#f97316', outer: '#7c2d12' }; // orange
+      case 6: return { inner: '#a855f7', outer: '#4c1d95' }; // purple
+      case 7: return { inner: '#0ea5e9', outer: '#082f49' }; // sky blue
+      default: return { inner: '#0066ff', outer: '#001d66' }; // fallback blue
+    }
+  };
+  const routeColors = getRouteColors(routeId);
+
   const map = useMap();
   const [routeCoords, setRouteCoords] = useState([]);
   const [busIndex, setBusIndex] = useState(0);
@@ -25,7 +40,7 @@ function RealRoadRoute({ stops }) {
   // Custom icon for the moving bus
   const movingBusIcon = L.divIcon({
     className: 'custom-moving-bus',
-    html: `<div style="font-size: 20px; display: flex; justify-content: center; align-items: center; background: white; border: 2px solid #0050ff; border-radius: 50%; width: 32px; height: 32px; box-shadow: 0 4px 8px rgba(0,0,0,0.4);">🚌</div>`,
+    html: `<div style="font-size: 20px; display: flex; justify-content: center; align-items: center; background: white; border: 3px solid ${routeColors.inner}; border-radius: 50%; width: 32px; height: 32px; box-shadow: 0 4px 8px rgba(0,0,0,0.4);">🚌</div>`,
     iconSize: [36, 36],
     iconAnchor: [18, 18]
   });
@@ -77,10 +92,10 @@ function RealRoadRoute({ stops }) {
     return (
       <Polyline 
         positions={stops.map(s => [s.lat, s.lng])} 
-        color="#3b82f6" 
-        weight={4} 
+        color={routeColors.inner} 
+        weight={6} 
         dashArray="5, 10" 
-        opacity={0.6} 
+        opacity={0.8} 
       />
     );
   }
@@ -95,10 +110,10 @@ function RealRoadRoute({ stops }) {
           z-index: 9999 !important;
         }
       `}</style>
-      {/* Outer black/dark blue border for high contrast */}
-      <Polyline positions={routeCoords} color="#001d66" weight={16} opacity={1} />
-      {/* Inner vibrant blue to cover the road and pop */}
-      <Polyline positions={routeCoords} color="#0066ff" weight={10} opacity={1} />
+      {/* Outer border for high contrast */}
+      <Polyline positions={routeCoords} color={routeColors.outer} weight={10} opacity={1} />
+      {/* Inner vibrant color to cover the road and pop */}
+      <Polyline positions={routeCoords} color={routeColors.inner} weight={6} opacity={1} />
       
       {/* Real-time Simulated Moving Bus Marker */}
       <Marker position={routeCoords[busIndex]} icon={movingBusIcon}>
@@ -108,7 +123,7 @@ function RealRoadRoute({ stops }) {
   );
 }
 
-const MapView = ({ stops = [], center = [8.8932, 76.6141], zoom = 13, tileUrl, height = '450px' }) => {
+const MapView = ({ stops = [], routeId = 1, center = [8.8932, 76.6141], zoom = 13, tileUrl, height = '450px' }) => {
   const defaultTile = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
   
   // Custom round marker for normal bus stops
@@ -136,7 +151,7 @@ const MapView = ({ stops = [], center = [8.8932, 76.6141], zoom = 13, tileUrl, h
         />
         
         {/* Handles bounds mapping and drawing the actual road route! */}
-        <RealRoadRoute stops={stops} />
+        <RealRoadRoute stops={stops} routeId={routeId} />
 
         {stops.map((stop, index) => (
           <Marker 
@@ -144,8 +159,8 @@ const MapView = ({ stops = [], center = [8.8932, 76.6141], zoom = 13, tileUrl, h
             position={[stop.lat, stop.lng]}
             icon={stop.isBoarding ? boardingStopIcon : normalStopIcon}
           >
-            <Tooltip permanent direction="right" offset={[12, 0]} className="custom-stop-tooltip" opacity={0.85}>
-              <span style={{ fontWeight: '600', fontSize: '9.5px', color: '#1e293b' }}>{stop.name}</span>
+            <Tooltip direction="top" offset={[0, -10]} className="custom-stop-tooltip" opacity={0.9}>
+              <span style={{ fontWeight: '600', fontSize: '11px', color: '#1e293b' }}>{stop.name}</span>
             </Tooltip>
             <Popup>
               <strong>Step {index + 1}: {stop.name}</strong>

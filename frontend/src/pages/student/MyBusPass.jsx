@@ -7,36 +7,48 @@
 
 import { useState, useEffect } from "react";
 import { Bus, User } from "lucide-react";
+import { fetchStudentProfile } from "../../api";
 import "./MyBusPass.css";
 
 function MyBusPass() {
   const [passData, setPassData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const username = JSON.parse(localStorage.getItem("thinkbus_user"))?.username || "";
 
   useEffect(() => {
-    // Mock data — replace with API call later
-    setTimeout(() => {
-      setPassData({
-        studentName: "Shreyas Menon",
-        admNumber: "CE241000",
-        department: "CE",
-        semester: "S4",
-        busNumber: "KL-02-B-2001",
-        busId: 1,
-        routeName: "Karunagapally",
-        stopName: "Kuttivattom",
-        validUntil: "June 2026",
-        isActive: true,
-      });
-      setLoading(false);
-    }, 400);
-  }, []);
+    async function loadPassData() {
+      if (!username) return;
+      try {
+        const res = await fetchStudentProfile(username);
+        if (res.success) {
+          setPassData(res.data);
+        } else {
+          setError(res.message || "Failed to load bus pass details");
+        }
+      } catch (err) {
+        setError("Error connecting to server");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadPassData();
+  }, [username]);
 
   if (loading) {
     return (
       <div className="student-loading">
         <div className="student-spinner"></div>
         <p>Loading your bus pass...</p>
+      </div>
+    );
+  }
+
+  if (error || !passData) {
+    return (
+      <div className="student-loading">
+        <p style={{ color: "#ef4444", fontWeight: "bold" }}>{error || "Bus pass data not found"}</p>
       </div>
     );
   }
@@ -72,7 +84,7 @@ function MyBusPass() {
             <div className="pass-photo">
                <User size={32} />
             </div>
-            <span className="pass-name">{passData.studentName}</span>
+            <span className="pass-name">{passData.fullName}</span>
             <span className="pass-adm">{passData.admNumber}</span>
           </div>
 

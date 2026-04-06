@@ -208,6 +208,7 @@ function Dashboard() {
                 <MapView 
                   key={selectedChildId}
                   stops={validStops} 
+                  routeId={childData?.route_id}
                   height="500px"
                   center={boardingStop ? [boardingStop.lat, boardingStop.lng] : [validStops[0].lat, validStops[0].lng]}
                   zoom={parseInt(data.map_config?.default_zoom || '13')}

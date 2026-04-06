@@ -11,32 +11,34 @@ import {
   Bus, 
   Phone 
 } from "lucide-react";
+import { fetchStudentProfile } from "../../api";
 import "./Profile.css";
 
 function Profile() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const username = JSON.parse(localStorage.getItem("thinkbus_user"))?.username || "";
 
   useEffect(() => {
-    // Mock data matching DB — replace with API call
-    setTimeout(() => {
-      setProfile({
-        fullName: "Shreyas Menon",
-        admNumber: "CE241000",
-        department: "Computer Engineering (CE)",
-        semester: "S4",
-        busNumber: "KL-02-B-2001",
-        routeName: "Karunagapally",
-        stopName: "Kuttivattom",
-        parentName: "Jose Pillai",
-        parentPhone: "8765432162",
-        email: "shreyas.menon@cep.ac.in",
-        phone: "9876543210",
-        isActive: true,
-      });
-      setLoading(false);
-    }, 400);
-  }, []);
+    async function loadProfile() {
+      if (!username) return;
+      try {
+        const res = await fetchStudentProfile(username);
+        if (res.success) {
+          setProfile(res.data);
+        } else {
+          setError(res.message || "Failed to load profile details");
+        }
+      } catch (err) {
+        setError("Error connecting to server");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProfile();
+  }, [username]);
 
   if (loading) {
     return (
@@ -46,6 +48,15 @@ function Profile() {
       </div>
     );
   }
+
+  if (error || !profile) {
+    return (
+      <div className="student-loading">
+        <p style={{ color: "#ef4444", fontWeight: "bold" }}>{error || "Profile data not found"}</p>
+      </div>
+    );
+  }
+
 
   return (
     <div className="profile-page" id="profile-page">

@@ -77,6 +77,7 @@ def get_student_dashboard(username: str):
                 "student_name": student["full_name"],
                 "bus_number": bus_data.get("registration_number") or "Unassigned",
                 "bus_id": bus_id,
+                "route_id": route_id,
                 "route_name": route_data.get("name") or "Unassigned",
                 "stop_name": stop_data.get("stop_name") or "Unassigned",
                 "driver_name": driver_name,
@@ -153,3 +154,52 @@ def pay_student_fee(req: PayFeeRequest):
     except Exception as e:
         return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
 
+
+@router.get("/profile")
+def get_student_profile(username: str):
+    try:
+        user_res = supabase.table("users").select("id").eq("username", username).execute()
+        if not user_res.data:
+            return JSONResponse(status_code=404, content={"success": False, "message": "User not found"})
+        user_id = user_res.data[0]["id"]
+
+        student_res = supabase.table("students").select(
+            "*, routes:default_route_id(name), route_stops:boarding_stop_id(stop_name), buses:current_bus_id(id, registration_number), parents:parent_id(full_name, phone_number)"
+        ).eq("user_id", user_id).execute()
+
+        if not student_res.data:
+            return JSONResponse(status_code=404, content={"success": False, "message": "Student profile not linked to user"})
+            
+        student = student_res.data[0]
+        bus_data = student.get("buses") or {}
+        route_data = student.get("routes") or {}
+        stop_data = student.get("route_stops") or {}
+        parent_data = student.get("parents") or {}
+
+        # Fallback names/phones
+        parent_name = parent_data.get("full_name") or "Unassigned"
+        parent_phone = parent_data.get("phone_number") or "N/A"
+
+        return {
+            "success": True,
+            "data": {
+                "fullName": student.get("full_name", "Unknown"),
+                "admNumber": student.get("adm_number", "Unknown"),
+                "department": student.get("department", "Unknown"),
+                "semester": student.get("semester", "Unknown"),
+                "busNumber": bus_data.get("registration_number") or "Unassigned",
+                "busId": bus_data.get("id") or 0,
+                "routeName": route_data.get("name") or "Unassigned",
+                "stopName": stop_data.get("stop_name") or "Unassigned",
+                "parentName": parent_name,
+                "parentPhone": parent_phone,
+                "email": f"{username}@cep.ac.in",
+                "phone": "N/A",  # Not stored in DB for students currently
+                "isActive": student.get("is_active", False),
+                "validUntil": "June 2026"
+            }
+        }
+
+    except Exception as e:
+        print(f"[STUDENT PROFILE ERROR] {e}")
+        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})

@@ -373,6 +373,13 @@ export async function fetchStudentFees(username) {
   return response.json();
 }
 
+// GET /student/profile
+export async function fetchStudentProfile(username) {
+  const response = await fetch(`${BASE_URL}/student/profile?username=${encodeURIComponent(username)}`);
+  return response.json();
+}
+
+
 // POST /student/pay-fee
 export async function payStudentFee(payload) {
   const response = await fetch(`${BASE_URL}/student/pay-fee`, {

@@ -19,6 +19,8 @@ cd backend
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
+python -m pip install pandas
+
 uvicorn main:app --reload
 The backend runs at: **http://localhost:8000**
 
@@ -26,6 +28,7 @@ The backend runs at: **http://localhost:8000**
 Run the Frontend (React)
 cd frontend
 npm install
+npm install jspdf jspdf-autotable
 npm run dev
 The frontend runs at: **http://localhost:5173**
 

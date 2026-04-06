@@ -226,6 +226,7 @@ function Dashboard() {
           <div className="student-map-container" style={{ marginTop: '16px', borderRadius: '16px', overflow: 'hidden', boxShadow: 'var(--glass-shadow-lg)', border: '1px solid var(--border-glass)' }}>
             <MapView 
               stops={busInfo.stops.filter(s => s.lat !== 0 || s.lng !== 0)} 
+              routeId={busInfo.route_id}
               center={
                 busInfo.stops.find(s => s.isBoarding && (s.lat !== 0 || s.lng !== 0)) 
                 ? [busInfo.stops.find(s => s.isBoarding).lat, busInfo.stops.find(s => s.isBoarding).lng]
