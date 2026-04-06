@@ -10,7 +10,8 @@ import {
   Map as MapIcon, 
   CheckCircle, 
   MapPin, 
-  Circle 
+  Circle,
+  AlertTriangle 
 } from "lucide-react";
 import { fetchDriverNavigation } from "../../api";
 import MapView from "../../components/MapView";
@@ -59,6 +60,20 @@ function Navigate() {
             <Navigation size={48} />
           </span>
           <p>No route data available for navigation.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (data?.bus_status?.includes("Breakdown")) {
+    return (
+      <div className="driver-page" id="driver-navigate">
+        <div className="empty-state" style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b" }}>
+          <span className="empty-icon" style={{ color: "#ef4444", background: "#fee2e2" }}>
+            <AlertTriangle size={56} />
+          </span>
+          <h2 style={{margin: "15px 0 5px", fontSize: "24px"}}>Navigation Unnecessary</h2>
+          <p style={{fontSize: "15px"}}>Your designated vehicle ({data.bus_number}) has been mathematically marked out of service due to diagnostic ML breakdown predictions.</p>
         </div>
       </div>
     );

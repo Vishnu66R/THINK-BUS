@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 import os
+import json
 from supabase import create_client, Client
 from pydantic import BaseModel
 
@@ -127,6 +128,81 @@ def get_student_fees(username: str):
                 "status": "Paid" if is_paid else "Pending"
             }
         }
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+
+
+@router.get("/alerts")
+def get_student_alerts(username: str):
+    try:
+        user_res = supabase.table("users").select("id").eq("username", username).execute()
+        if not user_res.data:
+            return JSONResponse(status_code=404, content={"success": False, "message": "User not found"})
+        user_id = user_res.data[0]["id"]
+
+        student_res = supabase.table("students").select("id, full_name, current_bus_id, boarding_stop_id").eq("user_id", user_id).execute()
+        if not student_res.data:
+            return JSONResponse(status_code=404, content={"success": False, "message": "Student not found"})
+            
+        student = student_res.data[0]
+        
+        alerts = []
+        
+        # 1. Read live ML simulation alerts if present
+        sim_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "latest_simulation.json")
+        if os.path.exists(sim_path):
+            try:
+                with open(sim_path, "r") as f:
+                    sim_data = json.load(f)
+                
+                if sim_data.get("status") == "rerouted":
+                    broken_bus_ids = set(sim_data.get("broken_bus_ids", []))
+                    
+                    stop_reassignment = {}
+                    for route in sim_data.get("buses", []):
+                        for st in route.get("stops", []):
+                            stop_reassignment[st["stop_id"]] = route
+                    
+                    c_bus_id = student.get("current_bus_id")
+                    b_stop_id = student.get("boarding_stop_id")
+                    
+                    if c_bus_id in broken_bus_ids:
+                        assigned_route = stop_reassignment.get(b_stop_id)
+                        if assigned_route:
+                            alerts.append({
+                                "id": "ml-1",
+                                "type": "alert",
+                                "title": f"Bus Breakdown & Reassigned!",
+                                "message": f"Your original bus broke down. You have been reassigned to Bus {assigned_route['registration']} (Route: {assigned_route['original_route']}). Expect delays.",
+                                "timestamp": "Just Now (Live ML)",
+                                "read": False
+                            })
+                    else:
+                        assigned_route = stop_reassignment.get(b_stop_id)
+                        if assigned_route and assigned_route["bus_id"] == c_bus_id:
+                            alerts.append({
+                                "id": "ml-2",
+                                "type": "warning",
+                                "title": f"Rerouting Notification: Bus {assigned_route['registration']}",
+                                "message": f"Your bus has been dynamically rerouted to pick up extra students from a broken bus. Expect delays or early arrival.",
+                                "timestamp": "Just Now (Live ML)",
+                                "read": False
+                            })
+            except Exception as e:
+                print(f"Error reading simulation cache: {e}")
+
+        # Static / generic notifications
+        alerts.append({
+            "id": 100,
+            "type": "info",
+            "title": "Welcome to Think-Bus",
+            "message": "Stay updated on your daily bus journeys.",
+            "timestamp": "System",
+            "read": True
+        })
+        
+        return {"success": True, "alerts": alerts}
+        
     except Exception as e:
         return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
 

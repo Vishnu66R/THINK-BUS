@@ -1,0 +1,102 @@
+{
+  "routes": {
+    "columns": [
+      "id",
+      "name",
+      "start_point",
+      "end_point",
+      "estimated_duration_minutes"
+    ],
+    "sample": {
+      "id": 1,
+      "name": "Karunagapally",
+      "start_point": "Karunagapally",
+      "end_point": "College Of Engineering Perumon",
+      "estimated_duration_minutes": 45
+    }
+  },
+  "route_stops": {
+    "columns": [
+      "id",
+      "route_id",
+      "stop_name",
+      "stop_order",
+      "time_from_start_mins"
+    ],
+    "sample": {
+      "id": 1,
+      "route_id": 1,
+      "stop_name": "Karunagapally",
+      "stop_order": 1,
+      "time_from_start_mins": 0
+    }
+  },
+  "stop_locations": {
+    "columns": [
+      "id",
+      "route_stop_id",
+      "latitude",
+      "longitude"
+    ],
+    "sample": {
+      "id": 11,
+      "route_stop_id": 1,
+      "latitude": 9.059804,
+      "longitude": 76.535633
+    }
+  },
+  "buses": {
+    "columns": [
+      "id",
+      "registration_number",
+      "capacity",
+      "driver_id",
+      "route_id",
+      "status",
+      "last_updated"
+    ],
+    "sample": {
+      "id": 2,
+      "registration_number": "KL-02-B-2002",
+      "capacity": 50,
+      "driver_id": 2,
+      "route_id": 2,
+      "status": "Active",
+      "last_updated": "2026-03-28T11:17:59.27369"
+    }
+  },
+  "students": {
+    "columns": [
+      "id",
+      "user_id",
+      "full_name",
+      "adm_number",
+      "semester",
+      "department",
+      "parent_id",
+      "boarding_stop_id",
+      "default_route_id",
+      "current_bus_id",
+      "is_active",
+      "created_at",
+      "email",
+      "fee_paid"
+    ],
+    "sample": {
+      "id": 5,
+      "user_id": 133,
+      "full_name": "Madhav",
+      "adm_number": "CE241004",
+      "semester": "S4",
+      "department": "EC",
+      "parent_id": 53,
+      "boarding_stop_id": 7,
+      "default_route_id": 1,
+      "current_bus_id": 1,
+      "is_active": true,
+      "created_at": "2026-03-29T17:08:52.735277",
+      "email": null,
+      "fee_paid": "unpaid"
+    }
+  }
+}

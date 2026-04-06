@@ -7,6 +7,8 @@
 
 from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse
+import json
+import os
 from database import supabase
 
 router = APIRouter(prefix="/parent", tags=["Parent"])
@@ -212,6 +214,53 @@ def get_alerts(username: str = Query(...)):
                         "message": f"Your child {s['full_name']}'s bus has broken down. Please check for rerouting updates.",
                         "timestamp": "Today",
                     })
+
+    # Read live ML simulation alerts if present
+    sim_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "latest_simulation.json")
+    if os.path.exists(sim_path):
+        try:
+            with open(sim_path, "r") as f:
+                sim_data = json.load(f)
+            
+            if sim_data.get("status") == "rerouted":
+                broken_bus_ids = set(sim_data.get("broken_bus_ids", []))
+                
+                # Pre-map which new active bus handles each stop
+                stop_reassignment = {}
+                for route in sim_data.get("buses", []):
+                    for st in route.get("stops", []):
+                        stop_reassignment[st["stop_id"]] = route
+                
+                # Parent's students check for boarding stop reassignment
+                students_ext_res = supabase.table("students").select("full_name, current_bus_id, boarding_stop_id").eq("parent_id", parent_id).execute()
+                students_ext = students_ext_res.data or []
+                
+                for s in students_ext:
+                    c_bus_id = s.get("current_bus_id")
+                    b_stop_id = s.get("boarding_stop_id")
+                    
+                    if c_bus_id in broken_bus_ids:
+                        assigned_route = stop_reassignment.get(b_stop_id)
+                        if assigned_route:
+                            alerts.append({
+                                "type": "danger",
+                                "title": f"Bus Breakdown & Reassigned!",
+                                "message": f"Your child {s['full_name']}'s original bus broke down. They have been reassigned to Bus {assigned_route['registration']} (Route: {assigned_route['original_route']}). Expect delays.",
+                                "timestamp": "Just Now (Live ML)",
+                            })
+                    else:
+                        # Child's bus is not broken, but could be rerouted
+                        assigned_route = stop_reassignment.get(b_stop_id)
+                        if assigned_route and assigned_route["bus_id"] == c_bus_id:
+                            alerts.append({
+                                "type": "warning",
+                                "title": f"Rerouting Notification: Bus {assigned_route['registration']}",
+                                "message": f"Your child {s['full_name']}'s bus has been dynamically rerouted to pick up extra students from a broken bus. Expect delays or early arrival.",
+                                "timestamp": "Just Now (Live ML)",
+                            })
+
+        except Exception as e:
+            print(f"Error reading simulation cache: {e}")
 
     # Static informational alerts (always shown)
     alerts.append({

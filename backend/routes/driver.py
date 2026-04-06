@@ -90,6 +90,46 @@ def get_my_route(username: str = Query(...)):
     )
     stops = stops_res.data or []
 
+    # --- Live Simulation Intercept ---
+    import os
+    import json
+    sim_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "latest_simulation.json")
+    if os.path.exists(sim_path):
+        try:
+            with open(sim_path, "r") as f:
+                sim_data = json.load(f)
+            
+            if sim_data.get("status") == "rerouted":
+                broken_bus_ids = set(sim_data.get("broken_bus_ids", []))
+                
+                if bus["id"] in broken_bus_ids:
+                    bus["status"] = "Breakdown (ML Override)"
+                    stops = []
+                else:
+                    for r_bus in sim_data.get("buses", []):
+                        if r_bus["bus_id"] == bus["id"]:
+                            # Override route estimated duration
+                            if route:
+                                route["estimated_duration_minutes"] = r_bus["estimated_duration_mins"]
+                                route["name"] += " [REROUTED]"
+                            
+                            new_stops = []
+                            for idx, st in enumerate(r_bus["stops"]):
+                                loc = st.get("location") or {}
+                                new_stops.append({
+                                    "id": st["stop_id"],
+                                    "stop_name": st["stop_name"] + " (Optimized Dispatch)",
+                                    "stop_order": idx + 1,
+                                    "time_from_start_mins": 0,
+                                    "stop_locations": {"latitude": loc.get("latitude"), "longitude": loc.get("longitude")}
+                                })
+                            # Replace normal stops with optimized sequence!
+                            stops = new_stops
+                            bus["status"] = "Rerouted"
+                            break
+        except Exception as e:
+            print("Error interpreting simulation:", e)
+
     # Fetch map configuration
     map_config_res = supabase.table("map_config").select("*").execute()
     map_config = {item["config_key"]: item["config_value"] for item in map_config_res.data} if map_config_res.data else {}
@@ -172,15 +212,52 @@ def get_trip_summary(username: str = Query(...)):
             "id, stop_name, stop_order, stop_locations(latitude, longitude)"
         ).eq("route_id", route_id).order("stop_order").execute()
 
-        if stops_res.data:
-            for s in stops_res.data:
+        _stops = stops_res.data or []
+
+        # Intercept for summary stops list
+        import os, json
+        sim_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "latest_simulation.json")
+        if os.path.exists(sim_path):
+            try:
+                with open(sim_path, "r") as f:
+                    sim_data = json.load(f)
+                if sim_data.get("status") == "rerouted":
+                    broken_bus_ids = set(sim_data.get("broken_bus_ids", []))
+                    if bus["id"] in broken_bus_ids:
+                        _stops = []
+                        total_stops = 0
+                        total_students = 0
+                        bus["status"] = "Breakdown (ML Override)"
+                    else:
+                        for r_bus in sim_data.get("buses", []):
+                            if r_bus["bus_id"] == bus["id"]:
+                                new_stops = []
+                                for idx, st in enumerate(r_bus["stops"]):
+                                    loc = st.get("location") or {}
+                                    new_stops.append({
+                                        "id": st["stop_id"],
+                                        "stop_name": st["stop_name"] + " (Optimized)",
+                                        "stop_order": idx + 1,
+                                        "stop_locations": {"latitude": loc.get("latitude"), "longitude": loc.get("longitude")}
+                                    })
+                                _stops = new_stops
+                                total_stops = len(new_stops)
+                                total_students = r_bus["passenger_count"]
+                                if route:
+                                    route["estimated_duration_minutes"] = r_bus["estimated_duration_mins"]
+                                break
+            except Exception:
+                pass
+
+        if _stops:
+            for s in _stops:
                 loc = s.get("stop_locations") or {}
                 stops_data.append({
                     "id": s["id"],
                     "name": s["stop_name"],
                     "lat": float(loc.get("latitude") or 0.0),
                     "lng": float(loc.get("longitude") or 0.0),
-                    "isBoarding": False  # Not relevant for driver view
+                    "isBoarding": False
                 })
 
     # Fetch map configuration

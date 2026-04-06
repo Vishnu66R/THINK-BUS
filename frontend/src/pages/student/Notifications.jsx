@@ -7,68 +7,34 @@
 
 import { useState, useEffect } from "react";
 import { AlertTriangle, CheckCircle, Info } from "lucide-react";
+import { fetchStudentAlerts } from "../../api";
 import "./Notifications.css";
 
 function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const username = JSON.parse(localStorage.getItem("thinkbus_user"))?.username || "";
+
   useEffect(() => {
-    // Mock notifications — replace with API call
-    setTimeout(() => {
-      setNotifications([
-        {
-          id: 1,
-          type: "alert",
-          title: "Bus Rerouted — Route 3 (Mevarom)",
-          message: "Bus KL-02-B-2003 has been rerouted due to road construction near Kundara. New route via Vellimon will add ~10 min.",
-          timestamp: "2 hours ago",
-          read: false,
-        },
-        {
-          id: 2,
-          type: "info",
-          title: "Schedule Update — Morning Pickup",
-          message: "Tomorrow's pickup from Kuttivattom has been moved to 7:35 AM due to a college event.",
-          timestamp: "5 hours ago",
-          read: false,
-        },
-        {
-          id: 3,
-          type: "success",
-          title: "Bus Pass Renewed",
-          message: "Your bus pass for Semester S4 has been successfully renewed. Valid until June 2026.",
-          timestamp: "1 day ago",
-          read: true,
-        },
-        {
-          id: 4,
-          type: "info",
-          title: "Maintenance Notice",
-          message: "Bus KL-02-B-2006 will be under maintenance on Friday. Route 6 students will be accommodated on Bus KL-02-B-2002.",
-          timestamp: "2 days ago",
-          read: true,
-        },
-        {
-          id: 5,
-          type: "alert",
-          title: "Heavy Rain Warning",
-          message: "Due to heavy rainfall forecast, all buses may have a 15-20 min delay tomorrow morning.",
-          timestamp: "3 days ago",
-          read: true,
-        },
-        {
-          id: 6,
-          type: "success",
-          title: "Route Optimization Complete",
-          message: "AI-powered route optimization has reduced average travel time by 8% across all routes.",
-          timestamp: "5 days ago",
-          read: true,
-        },
-      ]);
-      setLoading(false);
-    }, 400);
-  }, []);
+    async function loadAlerts() {
+      if (!username) return;
+      try {
+        const res = await fetchStudentAlerts(username);
+        if (res.success) {
+          setNotifications(res.alerts);
+        }
+      } catch (e) {
+        console.error("Failed to load alerts:", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    loadAlerts();
+    const interval = setInterval(loadAlerts, 30000);
+    return () => clearInterval(interval);
+  }, [username]);
 
   // Count unread notifications
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -110,8 +76,8 @@ function Notifications() {
             onClick={() => markAsRead(notif.id)}
           >
             <div className="notif-left">
-              <span className={`notif-type-badge notif-${notif.type}`}>
-                {notif.type === "alert" ? <AlertTriangle size={16} /> : notif.type === "success" ? <CheckCircle size={16} /> : <Info size={16} />}
+              <span className={`notif-type-badge notif-${notif.type || 'info'}`}>
+                {notif.type === "alert" || notif.type === "danger" ? <AlertTriangle size={16} /> : notif.type === "warning" ? <AlertTriangle size={16} /> : notif.type === "success" ? <CheckCircle size={16} /> : <Info size={16} />}
               </span>
             </div>
             <div className="notif-body">

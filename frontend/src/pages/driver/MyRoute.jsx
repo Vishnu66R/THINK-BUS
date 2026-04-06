@@ -11,7 +11,8 @@ import {
   Bus, 
   Clock, 
   MapPin, 
-  Flag 
+  Flag,
+  AlertTriangle 
 } from "lucide-react";
 import { fetchDriverRoute, fetchDriverSummary } from "../../api";
 import { useSimulatedDateTime } from "../../hooks/useSimulatedDateTime";
@@ -87,6 +88,20 @@ function MyRoute() {
             <Route size={48} />
           </span>
           <p>No route assigned yet. Please contact admin.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (data?.bus_status?.includes("Breakdown")) {
+    return (
+      <div className="driver-page" id="driver-my-route">
+        <div className="empty-state" style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b" }}>
+          <span className="empty-icon" style={{ color: "#ef4444", background: "#fee2e2" }}>
+            <AlertTriangle size={56} />
+          </span>
+          <h2 style={{margin: "15px 0 5px", fontSize: "24px"}}>Bus Out Of Service</h2>
+          <p style={{fontSize: "15px"}}>Your vehicle ({data.bus_number}) has been mathematically marked out of service for today due to a predicted mechanical failure.</p>
         </div>
       </div>
     );

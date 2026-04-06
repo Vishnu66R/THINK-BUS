@@ -219,6 +219,56 @@ function SystemConfig() {
               </tbody>
             </table>
           </div>
+
+          {/* Emergency Rerouting Plan UI */}
+          {mlResult.rerouting_plan && mlResult.rerouting_plan.status === "rerouted" && (
+            <div style={{ marginTop: "36px", animation: "fadeIn 0.5s ease" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px", justifyContent: "center" }}>
+                <span style={{ fontSize: "22px" }}>🚨</span>
+                <h3 style={{ margin: 0, color: "#e53e3e", fontSize: "18px" }}>Emergency Rerouting Plan</h3>
+              </div>
+              <div style={{
+                background: "#fff5f5", border: "1px solid #fecaca", borderRadius: "10px",
+                padding: "16px 20px", marginBottom: "24px", fontSize: "14px", color: "#b91c1c"
+              }}>
+                <strong style={{ fontSize: "15px" }}>Broken Down Buses:</strong> {mlResult.rerouting_plan.broken_buses.join(", ")}
+                <p style={{ margin: "8px 0 0 0", color: "#991b1b" }}>Students from these buses have been reallocated to active buses utilizing Dijkstra's algorithm and local geographic data minimum distance caching.</p>
+              </div>
+
+              {mlResult.rerouting_plan.buses.map(route => (
+                <div key={route.bus_id} style={{
+                  background: "#fff", padding: "20px", borderRadius: "12px", borderLeft: "6px solid #4f46e5",
+                  boxShadow: "0 10px 25px rgba(0,0,0,0.06)", marginBottom: "24px"
+                }}>
+                  <h4 style={{ margin: "0 0 12px 0", color: "#1e293b", fontSize: "17px" }}>
+                    Bus #{route.bus_id} ({route.registration})
+                    <span style={{ color: "#64748b", fontWeight: 500, fontSize: "14px", marginLeft: "10px" }}>Original: {route.original_route}</span>
+                  </h4>
+                  <div style={{ display: "flex", gap: "24px", fontSize: "14px", color: "#64748b", marginBottom: "20px", padding: "12px", background: "#f8fafc", borderRadius: "8px" }}>
+                    <span>⏳ <strong style={{ color: "#334155" }}>Est. Duration:</strong> <span style={{ color: "#4f46e5", fontWeight: "bold" }}>{route.estimated_duration_mins} mins</span></span>
+                    <span>👥 <strong style={{ color: "#334155" }}>Load:</strong> {route.passenger_count} / {route.capacity}</span>
+                  </div>
+                  <strong style={{ fontSize: "14px", color: "#334155", textTransform: "uppercase", letterSpacing: "0.05em" }}>Optimized Dispatch Sequence:</strong>
+                  <ol style={{ margin: "14px 0 0 0", paddingLeft: "24px", fontSize: "14px", color: "#475569" }}>
+                    {route.stops.map((st, i) => (
+                      <li key={st.stop_id} style={{ padding: "8px 0", borderBottom: i !== route.stops.length - 1 ? "1px solid #f1f5f9" : "none" }}>
+                        <strong style={{ color: "#0f172a" }}>{st.stop_name}</strong> 
+                        <span style={{ marginLeft: "10px", background: "#e2e8f0", padding: "2px 8px", borderRadius: "12px", fontSize: "12px", fontWeight: "bold" }}>{st.demand} Pickups</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {mlResult.rerouting_plan && mlResult.rerouting_plan.status === "no_rerouting_needed" && (
+            <div style={{ marginTop: "36px", textAlign: "center", color: "#059669", background: "#ecfdf5", padding: "18px", borderRadius: "12px", border: "1px solid #a7f3d0", animation: "fadeIn 0.5s ease" }}>
+              <span style={{ fontSize: "22px", marginRight: "10px", verticalAlign: "-3px" }}>✅</span>
+              <strong style={{ fontSize: "16px" }}>Fleet Status Normal:</strong> No active high-risk buses detected. Normal routes apply.
+            </div>
+          )}
+
         </div>
       )}
     </div>
