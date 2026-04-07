@@ -86,7 +86,7 @@ def list_students():
     """List all students with related route, bus, and parent info."""
     try:
         result = supabase.table("students").select(
-            "*, routes:default_route_id(name), buses:current_bus_id(registration_number), route_stops:boarding_stop_id(stop_name)"
+            "*, parents:parent_id(full_name), routes:default_route_id(name), buses:current_bus_id(registration_number), route_stops:boarding_stop_id(stop_name)"
         ).order("id").execute()
         
         data = []
@@ -94,6 +94,7 @@ def list_students():
             s["route_name"] = s.get("routes", {}).get("name") if s.get("routes") else None
             s["stop_name"] = s.get("route_stops", {}).get("stop_name") if s.get("route_stops") else None
             s["bus_registration"] = s.get("buses", {}).get("registration_number") if s.get("buses") else None
+            s["parent_name"] = s.get("parents", {}).get("full_name") if s.get("parents") else None
             data.append(s)
 
         return {"success": True, "data": data}
@@ -302,14 +303,18 @@ def list_drivers():
 
         # Attach bus info to each driver
         drivers = result.data
-        for drv in drivers:
-            bus = supabase.table("buses").select("registration_number, route_id, routes:route_id(name)").eq("driver_id", drv["id"]).execute()
-            if bus.data:
-                drv["bus_registration"] = bus.data[0].get("registration_number")
-                drv["route_name"] = bus.data[0].get("routes", {}).get("name") if bus.data[0].get("routes") else None
-            else:
-                drv["bus_registration"] = None
-                drv["route_name"] = None
+        if drivers:
+            buses_res = supabase.table("buses").select("driver_id, registration_number, route_id, routes:route_id(name)").not_.is_("driver_id", "null").execute()
+            buses_by_driver = {b["driver_id"]: b for b in buses_res.data} if buses_res.data else {}
+
+            for drv in drivers:
+                bus = buses_by_driver.get(drv["id"])
+                if bus:
+                    drv["bus_registration"] = bus.get("registration_number")
+                    drv["route_name"] = bus.get("routes", {}).get("name") if bus.get("routes") else None
+                else:
+                    drv["bus_registration"] = None
+                    drv["route_name"] = None
 
         return {"success": True, "data": drivers}
     except Exception as e:
@@ -529,9 +534,9 @@ def delete_route(route_id: int):
 
 @router.get("/parents")
 def list_parents():
-    """List all users with role 'parent'."""
+    """List all parents from the parents table (for student assignment dropdowns)."""
     try:
-        result = supabase.table("users").select("id, username").eq("role", "parent").execute()
+        result = supabase.table("parents").select("id, full_name").order("id").execute()
         return {"success": True, "data": result.data}
     except Exception as e:
         return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
@@ -637,3 +642,234 @@ def get_simulate_datetime():
     except Exception as e:
         print(f"[GET SIMULATE DATETIME ERROR] {e}")
         return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+
+
+# ─── Bus Tracking (In-Memory State) ──────────────────────────
+
+import time as _time
+
+# In-memory store: { bus_id: { "start_time": float, "direction": "to_college"|"to_stop", "route_id": int } }
+_bus_tracking_state = {}
+
+
+class TrackingStartPayload(BaseModel):
+    bus_id: int
+    direction: str   # "to_college" or "to_stop"
+
+class StartAllTrackingPayload(BaseModel):
+    direction: str
+
+@router.post("/start-all-tracking")
+def start_all_tracking(payload: StartAllTrackingPayload):
+    """Start tracking ALL buses. Records the current time as the start time."""
+    try:
+        direction = payload.direction
+        # Get all buses with an assigned route
+        bus_res = supabase.table("buses").select("id, route_id").not_.is_("route_id", "null").execute()
+        
+        count = 0
+        for b in bus_res.data:
+            _bus_tracking_state[b["id"]] = {
+                "start_time": _time.time(),
+                "direction": direction,
+                "route_id": b["route_id"],
+            }
+            count += 1
+
+        return {"success": True, "message": f"Started tracking for {count} buses ({direction})"}
+    except Exception as e:
+        print(f"[START ALL TRACKING ERROR] {e}")
+        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+
+@router.post("/stop-all-tracking")
+def stop_all_tracking():
+    """Stop tracking ALL buses."""
+    _bus_tracking_state.clear()
+    return {"success": True, "message": "All tracking stopped"}
+
+@router.post("/start-tracking")
+def start_tracking(payload: TrackingStartPayload):
+    """Start tracking a bus. Records the current time as the start time."""
+    try:
+        bus_id = payload.bus_id
+        direction = payload.direction
+
+        # Get the route_id for this bus
+        bus_res = supabase.table("buses").select("route_id").eq("id", bus_id).execute()
+        if not bus_res.data or not bus_res.data[0].get("route_id"):
+            return JSONResponse(status_code=404, content={"success": False, "message": "Bus has no assigned route"})
+
+        route_id = bus_res.data[0]["route_id"]
+
+        _bus_tracking_state[bus_id] = {
+            "start_time": _time.time(),
+            "direction": direction,
+            "route_id": route_id,
+        }
+
+        return {"success": True, "message": f"Bus {bus_id} tracking started ({direction})"}
+    except Exception as e:
+        print(f"[START TRACKING ERROR] {e}")
+        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+
+
+@router.post("/stop-tracking/{bus_id}")
+def stop_tracking(bus_id: int):
+    """Stop tracking a specific bus."""
+    if bus_id in _bus_tracking_state:
+        del _bus_tracking_state[bus_id]
+    return {"success": True, "message": f"Bus {bus_id} tracking stopped"}
+
+
+@router.get("/tracking-status/{bus_id}")
+def get_tracking_status(bus_id: int):
+    """
+    Get the current tracking position for a bus.
+    Returns which two stops the bus is between and the fractional progress.
+    Uses time_from_start_mins from route_stops to compute position based on elapsed real time.
+    Time is SCALED: 1 real minute = 1 DB minute (real-time).
+    """
+    try:
+        if bus_id not in _bus_tracking_state:
+            return {"success": True, "active": False}
+
+        state = _bus_tracking_state[bus_id]
+        elapsed_seconds = _time.time() - state["start_time"]
+        
+        from datetime import datetime
+        paused_until = state.get("paused_until")
+        is_paused = False
+        delay_mins = state.get("delay_mins", 0)
+
+        if paused_until and datetime.now() < paused_until:
+            is_paused = True
+            pause_remaining = (paused_until - datetime.now()).total_seconds()
+            elapsed_seconds += pause_remaining
+
+        elapsed_mins = elapsed_seconds / 60.0
+
+        route_id = state["route_id"]
+        direction = state["direction"]
+
+        # Fetch route stops with locations, ordered by stop_order
+        stops_res = supabase.table("route_stops").select(
+            "id, stop_name, stop_order, time_from_start_mins, stop_locations(latitude, longitude)"
+        ).eq("route_id", route_id).order("stop_order").execute()
+
+        stops = []
+        for st in stops_res.data:
+            if st.get("stop_locations"):
+                stops.append({
+                    "name": st["stop_name"],
+                    "lat": float(st["stop_locations"]["latitude"]),
+                    "lng": float(st["stop_locations"]["longitude"]),
+                    "time_mins": st["time_from_start_mins"] or 0,
+                    "stop_order": st["stop_order"],
+                })
+
+        if len(stops) < 2:
+            return {"success": True, "active": True, "arrived": True, "message": "Not enough stops"}
+
+        # If direction is "to_stop" (college to stop), reverse the stops and adjust times
+        if direction == "to_stop":
+            max_time = stops[-1]["time_mins"]
+            stops = list(reversed(stops))
+            for s in stops:
+                s["time_mins"] = max_time - s["time_mins"]
+
+        total_route_time = stops[-1]["time_mins"]
+
+        # Check if bus has arrived at final destination
+        if elapsed_mins >= total_route_time:
+            # Bus has arrived, remove tracking
+            del _bus_tracking_state[bus_id]
+            return {
+                "success": True,
+                "active": False,
+                "arrived": True,
+                "message": "Bus has reached its destination",
+                "final_stop": stops[-1]["name"],
+            }
+
+        # Find which two stops the bus is between
+        from_stop = stops[0]
+        to_stop = stops[1] if len(stops) > 1 else stops[0]
+        fraction = 0.0
+        leg_index = 0
+
+        for i in range(len(stops) - 1):
+            if elapsed_mins >= stops[i]["time_mins"] and elapsed_mins < stops[i + 1]["time_mins"]:
+                from_stop = stops[i]
+                to_stop = stops[i + 1]
+                leg_index = i
+                segment_duration = to_stop["time_mins"] - from_stop["time_mins"]
+                if segment_duration > 0:
+                    fraction = (elapsed_mins - from_stop["time_mins"]) / segment_duration
+                else:
+                    fraction = 1.0
+                break
+
+        # Send leg_index and fraction. We no longer calculate straight-line lat/lng here
+        # because the frontend will use the exact OSRM route geometry.
+        return {
+            "success": True,
+            "active": True,
+            "arrived": False,
+            "direction": direction,
+            "elapsed_mins": round(elapsed_mins, 2),
+            "total_route_mins": total_route_time,
+            "from_stop": from_stop["name"],
+            "to_stop": to_stop["name"],
+            "leg_index": leg_index,
+            "fraction": round(fraction, 4),
+            "is_paused": is_paused,
+            "delay_mins": delay_mins,
+        }
+    except Exception as e:
+        print(f"[TRACKING STATUS ERROR] {e}")
+        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+
+
+@router.get("/tracking-active")
+def get_all_active_tracking():
+    """Return all currently tracked buses."""
+    result = {}
+    for bus_id, state in _bus_tracking_state.items():
+        elapsed = _time.time() - state["start_time"]
+        result[bus_id] = {
+            "direction": state["direction"],
+            "route_id": state["route_id"],
+            "elapsed_seconds": round(elapsed, 1),
+        }
+    return {"success": True, "data": result}
+    
+
+# ─── Notifications ─────────────────────────────────────────────
+
+@router.get("/notifications")
+def get_admin_notifications():
+    """Fetch active notifications for the admin dashboard."""
+    try:
+        # Fetch from notifications table, filtered by target role Admin or All
+        res = supabase.table("notifications")\
+            .select("*, buses:target_bus_id(registration_number, routes:route_id(name))")\
+            .eq("is_active", True)\
+            .in_("target_role", ["Admin", "All"])\
+            .order("created_at", desc=True)\
+            .execute()
+        
+        return {"success": True, "data": res.data or []}
+    except Exception as e:
+        print(f"[ADMIN NOTIFICATIONS ERROR] {e}")
+        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+
+@router.post("/notifications/dismiss/{notif_id}")
+def dismiss_notification(notif_id: int):
+    """Mark a notification as inactive (dismissed)."""
+    try:
+        supabase.table("notifications").update({"is_active": False}).eq("id", notif_id).execute()
+        return {"success": True, "message": "Notification dismissed"}
+    except Exception as e:
+        print(f"[DISMISS NOTIFICATION ERROR] {e}")
+        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+

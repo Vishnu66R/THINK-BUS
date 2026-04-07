@@ -10,7 +10,8 @@ import {
   Users, 
   CheckCircle, 
   AlertTriangle, 
-  Map as MapIcon 
+  Map as MapIcon,
+  Clock 
 } from "lucide-react";
 import { fetchParentDashboard } from "../../api";
 import { useSimulatedDateTime } from "../../hooks/useSimulatedDateTime";
@@ -163,6 +164,34 @@ function Dashboard() {
                   <span className="detail-value">{child.department} — {child.semester}</span>
                 </div>
               </div>
+
+              {/* Live ETA Box */}
+              <div 
+                className={`child-eta-box ${child.tracking_active && child.eta_mins > 0 ? "eta-active" : ""}`}
+                style={{
+                  marginTop: "16px",
+                  padding: "12px",
+                  borderRadius: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  background: child.tracking_active ? "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)" : "var(--bg-surface)",
+                  color: child.tracking_active ? "#fff" : "var(--text-muted)",
+                  boxShadow: child.tracking_active ? "0 4px 12px rgba(79, 70, 229, 0.3)" : "none",
+                  border: child.tracking_active ? "none" : "1px solid var(--border-subtle)"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Clock size={16} />
+                  <span style={{ fontSize: "0.85rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>Live ETA</span>
+                </div>
+                <span style={{ fontSize: "1.1rem", fontWeight: 800 }}>
+                  {child.tracking_active 
+                    ? (child.eta_mins > 0 ? `${child.eta_mins} mins` : "Arriving 🚍")
+                    : "Not Started"
+                  }
+                </span>
+              </div>
             </div>
           );
         })}
@@ -209,6 +238,7 @@ function Dashboard() {
                   key={selectedChildId}
                   stops={validStops} 
                   routeId={childData?.route_id}
+                  busId={childData?.bus_id}
                   height="500px"
                   center={boardingStop ? [boardingStop.lat, boardingStop.lng] : [validStops[0].lat, validStops[0].lng]}
                   zoom={parseInt(data.map_config?.default_zoom || '13')}

@@ -52,6 +52,7 @@ function Emergency() {
   const [confirming, setConfirming] = useState(null); // which type is being confirmed
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState(null); // { success, message }
+  const [delayMins, setDelayMins] = useState(0);
 
   const username = JSON.parse(localStorage.getItem("thinkbus_user"))?.username || "";
 
@@ -59,11 +60,13 @@ function Emergency() {
   function handleClick(type) {
     setConfirming(type);
     setResult(null);
+    setDelayMins(0);
   }
 
   // Cancel confirmation
   function handleCancel() {
     setConfirming(null);
+    setDelayMins(0);
   }
 
   // Send emergency report
@@ -71,13 +74,14 @@ function Emergency() {
     if (!confirming) return;
     setSending(true);
     try {
-      const res = await reportEmergency(username, confirming.type, confirming.description);
+      const res = await reportEmergency(username, confirming.type, confirming.description, delayMins);
       setResult(res);
     } catch {
       setResult({ success: false, message: "Could not connect to server" });
     } finally {
       setSending(false);
       setConfirming(null);
+      setDelayMins(0);
     }
   }
 
@@ -162,6 +166,42 @@ function Emergency() {
               Are you sure you want to report a <strong>{confirming.label}</strong>?
               This will notify the admin immediately.
             </p>
+
+            {(confirming.type === "delay" || confirming.type === "traffic") && (
+              <div style={{ margin: "20px 0", textAlign: "left" }}>
+                <label style={{ display: "block", marginBottom: "8px", fontWeight: "600", fontSize: "14px", color: "#374151" }}>
+                  Estimated Delay (Minutes):
+                </label>
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px" }}>
+                  {[5, 10, 15, 30].map(mins => (
+                    <button
+                      key={mins}
+                      onClick={() => setDelayMins(mins)}
+                      style={{
+                        padding: "8px 16px",
+                        borderRadius: "8px",
+                        border: delayMins === mins ? `2px solid ${confirming.color}` : "1px solid #d1d5db",
+                        background: delayMins === mins ? confirming.bg : "#ffffff",
+                        color: delayMins === mins ? confirming.color : "#374151",
+                        fontWeight: "600",
+                        cursor: "pointer"
+                      }}
+                    >
+                      {mins} min
+                    </button>
+                  ))}
+                </div>
+                <input 
+                  type="number" 
+                  min="1"
+                  placeholder="Or enter custom minutes"
+                  value={delayMins || ""}
+                  onChange={(e) => setDelayMins(parseInt(e.target.value) || 0)}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", outline: "none" }}
+                />
+              </div>
+            )}
+
             <div className="modal-buttons">
               <button className="modal-btn modal-btn--cancel" onClick={handleCancel}>
                 Cancel
@@ -169,7 +209,7 @@ function Emergency() {
               <button
                 className="modal-btn modal-btn--confirm"
                 onClick={handleConfirm}
-                disabled={sending}
+                disabled={sending || ((confirming.type === "delay" || confirming.type === "traffic") && !delayMins)}
                 style={{ background: confirming.color }}
               >
                 {sending ? "Sending…" : "Yes, Report"}

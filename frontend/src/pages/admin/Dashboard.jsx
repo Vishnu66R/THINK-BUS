@@ -9,7 +9,9 @@ import {
   fetchAdminStats,
   adminSearch,
   fetchAdminBuses,
-  fetchAdminBusStops
+  fetchAdminBusStops,
+  fetchAdminNotifications,
+  dismissAdminNotification
 } from "../../api";
 import { useSimulatedDateTime } from "../../hooks/useSimulatedDateTime";
 import { 
@@ -44,6 +46,9 @@ function Dashboard() {
   const [selectedBusId, setSelectedBusId] = useState("");
   const [mapStops, setMapStops] = useState([]);
 
+  // Notifications
+  const [notifications, setNotifications] = useState([]);
+
   // Search
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState(null);
@@ -57,7 +62,24 @@ function Dashboard() {
   useEffect(() => {
     loadDashboard();
     loadBuses();
+    loadNotifications();
+    const notifInt = setInterval(loadNotifications, 10000); // refresh notifications every 10s
+    return () => clearInterval(notifInt);
   }, []);
+
+  async function loadNotifications() {
+    const res = await fetchAdminNotifications();
+    if (res.success && res.data) {
+      setNotifications(res.data);
+    }
+  }
+
+  async function handleDismiss(notifId) {
+    const res = await dismissAdminNotification(notifId);
+    if (res.success) {
+      setNotifications(prev => prev.filter(n => n.id !== notifId));
+    }
+  }
 
   async function loadBuses() {
     const res = await fetchAdminBuses();
@@ -69,6 +91,12 @@ function Dashboard() {
         setSelectedBusId(defaultBus.id);
       }
     }
+  }
+
+  function handleBusChange(newBusId) {
+    const parsedId = parseInt(newBusId, 10);
+    setMapStops([]); // Clear old stops immediately to prevent stale map
+    setSelectedBusId(parsedId);
   }
 
   useEffect(() => {
@@ -314,7 +342,7 @@ function Dashboard() {
             </h3>
             <select 
               value={selectedBusId} 
-              onChange={e => setSelectedBusId(e.target.value)}
+              onChange={e => handleBusChange(e.target.value)}
               style={{
                 padding: '8px 12px',
                 borderRadius: '8px',
@@ -339,6 +367,7 @@ function Dashboard() {
                 key={selectedBusId}
                 stops={mapStops.filter(s => s.lat !== 0 && s.lng !== 0)} 
                 routeId={buses.find(b => b.id == selectedBusId)?.route_id}
+                busId={selectedBusId}
                 center={[mapStops[0].lat, mapStops[0].lng]}
                 height="500px" 
               />
@@ -362,43 +391,51 @@ function Dashboard() {
         {/* ML Alerts Placeholder */}
         <div className="ml-alerts-panel" id="ml-alerts-panel">
           <div className="ml-alerts-header">
-            <h3><Bot size={22} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> AI Alerts</h3>
-            <span className="ml-badge">ML Engine</span>
+            <h3><Bot size={22} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Live Alerts</h3>
+            <span className="ml-badge">System Engine</span>
           </div>
           <div className="ml-alerts-list">
-            <div className="ml-alert-item ml-alert-warning">
-              <span className="ml-pulse"></span>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <AlertTriangle size={20} style={{ color: 'var(--color-warning, #f59e0b)', flexShrink: 0 }} />
-                <div>
-                  <p className="ml-alert-title">Route 3 Congestion Predicted</p>
-                  <p className="ml-alert-desc">High traffic expected at 8:15 AM on Mevarom route</p>
-                </div>
+            {notifications.length === 0 ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#94a3b8' }}>
+                <CheckCircle size={32} style={{ marginBottom: '8px', opacity: 0.5 }} />
+                <p style={{ fontSize: '0.9rem' }}>No active alerts. Everything is running smoothly.</p>
               </div>
-            </div>
-            <div className="ml-alert-item ml-alert-info">
-              <span className="ml-pulse pulse-blue"></span>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <Info size={20} style={{ color: 'var(--color-info, #3b82f6)', flexShrink: 0 }} />
-                <div>
-                  <p className="ml-alert-title">Optimization Suggestion</p>
-                  <p className="ml-alert-desc">Rerouting Bus 5 can save 12 mins avg travel time</p>
+            ) : (
+              notifications.map((notif) => (
+                <div key={notif.id} className={`ml-alert-item ml-alert-${notif.type || 'info'}`} style={{ position: 'relative' }}>
+                  <button 
+                    onClick={() => handleDismiss(notif.id)}
+                    style={{ position: 'absolute', top: '8px', right: '8px', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '2px' }}
+                  >
+                    <X size={14} />
+                  </button>
+                  <span className={`ml-pulse ${notif.type === 'alert' ? '' : notif.type === 'warning' ? 'pulse-yellow' : 'pulse-blue'}`}></span>
+                  <div style={{ display: 'flex', gap: '12px', paddingRight: '20px' }}>
+                    {notif.type === 'alert' || notif.type === 'danger' ? (
+                      <AlertTriangle size={20} style={{ color: '#ef4444', flexShrink: 0 }} />
+                    ) : notif.type === 'warning' ? (
+                      <AlertTriangle size={20} style={{ color: '#f59e0b', flexShrink: 0 }} />
+                    ) : (
+                      <Info size={20} style={{ color: '#3b82f6', flexShrink: 0 }} />
+                    )}
+                    <div>
+                      <p className="ml-alert-title">{notif.title}</p>
+                      <p className="ml-alert-desc">
+                        {notif.message}
+                        {notif.buses && (
+                          <span style={{ display: 'block', marginTop: '4px', fontStyle: 'italic', fontSize: '0.8rem' }}>
+                            Route: {notif.buses.routes ? notif.buses.routes.name : "Unknown"}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div className="ml-alert-item ml-alert-success">
-              <span className="ml-pulse pulse-green"></span>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <CheckCircle size={20} style={{ color: 'var(--color-success, #10b981)', flexShrink: 0 }} />
-                <div>
-                  <p className="ml-alert-title">All Routes On-Time</p>
-                  <p className="ml-alert-desc">Morning shift completed with 98% punctuality</p>
-                </div>
-              </div>
-            </div>
+              ))
+            )}
           </div>
           <div className="ml-coming-soon">
-            <span>Full ML pipeline coming soon</span>
+            <span>Powered by Think-Bus Core</span>
           </div>
         </div>
       </div>

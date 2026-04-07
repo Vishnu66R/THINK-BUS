@@ -58,49 +58,88 @@ def get_children(username: str = Query(...)):
 
     parent_id = parent["id"]
 
-    # Fetch students belonging to this parent
+    # Fetch students belonging to this parent with all relational data
     students_res = (
         supabase.table("students")
-        .select("*")
+        .select("*, routes:default_route_id(name), route_stops:boarding_stop_id(stop_name), buses:current_bus_id(registration_number, status, drivers:driver_id(full_name, phone_number))")
         .eq("parent_id", parent_id)
         .execute()
     )
     students = students_res.data or []
 
-    # Enrich each student with bus, route, and stop details
+    # Fetch all stops for each unique child route to give the map coordinates and timings
+    route_ids = list(set([s["default_route_id"] for s in students if s.get("default_route_id")]))
+    stops_by_route = {}
+    route_max_times = {}
+
+    if route_ids:
+        stops_res = supabase.table("route_stops").select("id, route_id, stop_name, stop_order, time_from_start_mins, stop_locations(latitude, longitude)").in_("route_id", route_ids).order("stop_order").execute()
+        if stops_res.data:
+            for st in stops_res.data:
+                r_id = st["route_id"]
+                if r_id not in stops_by_route:
+                    stops_by_route[r_id] = []
+                    route_max_times[r_id] = 0
+                
+                loc = st.get("stop_locations") or {}
+                time_mins = st.get("time_from_start_mins") or 0
+                route_max_times[r_id] = max(route_max_times[r_id], time_mins)
+
+                stops_by_route[r_id].append({
+                    "id": st["id"],
+                    "name": st["stop_name"],
+                    "time_mins": time_mins,
+                    "lat": float(loc.get("latitude") or 0.0),
+                    "lng": float(loc.get("longitude") or 0.0),
+                    # isBoarding will be set per child
+                })
+
+    from routes.admin import get_tracking_status
+    
+    # Enrich each student with the fetched relational details
     children = []
     for s in students:
-        # Route info
-        route_name = "—"
-        if s.get("default_route_id"):
-            r = supabase.table("routes").select("name").eq("id", s["default_route_id"]).execute()
-            if r.data:
-                route_name = r.data[0]["name"]
+        r_info = s.get("routes") or {}
+        st_info = s.get("route_stops") or {}
+        b_info = s.get("buses") or {}
+        d_info = b_info.get("drivers") or {}
 
-        # Stop info
-        stop_name = "—"
-        if s.get("boarding_stop_id"):
-            st = supabase.table("route_stops").select("stop_name").eq("id", s["boarding_stop_id"]).execute()
-            if st.data:
-                stop_name = st.data[0]["stop_name"]
+        route_id = s.get("default_route_id")
+        bus_id = s.get("current_bus_id")
+        board_stop_id = s.get("boarding_stop_id")
+        
+        # Prepare stops specific to this student to correctly highlight boarding stop
+        student_stops = []
+        student_stop_time = 0
+        if route_id and route_id in stops_by_route:
+            import copy
+            base_stops = copy.deepcopy(stops_by_route[route_id])
+            for bs in base_stops:
+                is_boarding = (bs["id"] == board_stop_id)
+                bs["isBoarding"] = is_boarding
+                if is_boarding:
+                    student_stop_time = bs["time_mins"]
+            student_stops = base_stops
 
-        # Bus info
-        bus_number = "—"
-        bus_status = "Normal"
-        driver_name = "—"
-        driver_phone = "—"
-        if s.get("current_bus_id"):
-            b = supabase.table("buses").select("*").eq("id", s["current_bus_id"]).execute()
-            if b.data:
-                bus = b.data[0]
-                bus_number = bus["registration_number"]
-                bus_status = bus.get("status", "Active")
-                # Driver info
-                if bus.get("driver_id"):
-                    d = supabase.table("drivers").select("full_name, phone_number").eq("id", bus["driver_id"]).execute()
-                    if d.data:
-                        driver_name = d.data[0]["full_name"]
-                        driver_phone = d.data[0].get("phone_number", "—")
+        # Calculate Real-Time ETA
+        eta_mins = None
+        tracking_active = False
+        
+        if bus_id:
+            track_info = get_tracking_status(bus_id)
+            if track_info and track_info.get("active"):
+                tracking_active = True
+                elapsed = track_info.get("elapsed_mins", 0)
+                direction = track_info.get("direction", "to_college")
+                
+                s_time = student_stop_time
+                if direction == "to_stop" and route_id in route_max_times:
+                    s_time = route_max_times[route_id] - s_time
+                    
+                if elapsed < s_time:
+                    eta_mins = int(round(s_time - elapsed))
+                else:
+                    eta_mins = 0
 
         children.append({
             "id": s["id"],
@@ -108,37 +147,19 @@ def get_children(username: str = Query(...)):
             "adm_number": s.get("adm_number", ""),
             "semester": s.get("semester", ""),
             "department": s.get("department", ""),
-            "route_id": s.get("default_route_id"),
-            "route_name": route_name,
-            "stop_name": stop_name,
-            "bus_number": bus_number,
-            "bus_status": bus_status,
-            "driver_name": driver_name,
-            "driver_phone": driver_phone,
+            "route_id": route_id,
+            "bus_id": bus_id,
+            "route_name": r_info.get("name", "—"),
+            "stop_name": st_info.get("stop_name", "—"),
+            "bus_number": b_info.get("registration_number", "—"),
+            "bus_status": b_info.get("status", "Normal"),
+            "driver_name": d_info.get("full_name", "—"),
+            "driver_phone": d_info.get("phone_number", "—"),
             "is_active": s.get("is_active", True),
+            "eta_mins": eta_mins,
+            "tracking_active": tracking_active,
+            "stops": student_stops
         })
-
-    # Fetch all stops for each child's route with coordinates
-    for child in children:
-        student_rec = next((s for s in students if s["id"] == child["id"]), None)
-        route_id = student_rec.get("default_route_id") if student_rec else None
-        stops_data = []
-        if route_id:
-            stops_res = supabase.table("route_stops").select(
-                "id, stop_name, stop_order, stop_locations(latitude, longitude)"
-            ).eq("route_id", route_id).order("stop_order").execute()
-
-            if stops_res.data:
-                for s in stops_res.data:
-                    loc = s.get("stop_locations") or {}
-                    stops_data.append({
-                        "id": s["id"],
-                        "name": s["stop_name"],
-                        "lat": float(loc.get("latitude") or 0.0),
-                        "lng": float(loc.get("longitude") or 0.0),
-                        "isBoarding": s["id"] == student_rec.get("boarding_stop_id")
-                    })
-        child["stops"] = stops_data
 
     # Fetch map configuration
     map_config_res = supabase.table("map_config").select("*").execute()
@@ -172,6 +193,7 @@ def get_dashboard(username: str = Query(...)):
         "active_children": active_count,
         "rerouted_buses": rerouted_count,
         "children": children,
+        "map_config": children_resp.get("map_config", {}),
     }
 
 
@@ -261,6 +283,30 @@ def get_alerts(username: str = Query(...)):
 
         except Exception as e:
             print(f"Error reading simulation cache: {e}")
+
+    # Real-time DB Notifications (Driver Delays, etc.)
+    try:
+        notif_res = supabase.table("notifications").select("*").eq("is_active", True).execute()
+        db_notifs = notif_res.data or []
+        
+        # Get all bus IDs for this parent's children
+        child_bus_ids = [s.get("current_bus_id") for s in students if s.get("current_bus_id")]
+        
+        for n in db_notifs:
+            role_match = n.get("target_role") in ["All", "Parent"]
+            bus_match = n.get("target_bus_id") is None or n.get("target_bus_id") in child_bus_ids
+            
+            if role_match and bus_match:
+                alerts.append({
+                    "id": f"db-{n['id']}",
+                    "type": n.get("type", "warning"),
+                    "title": n["title"],
+                    "message": n["message"],
+                    "timestamp": "Just Now",
+                    "read": False
+                })
+    except Exception as e:
+        print(f"Error fetching DB notifications: {e}")
 
     # Static informational alerts (always shown)
     alerts.append({

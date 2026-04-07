@@ -1,0 +1,50 @@
+STUDENTS ON ROUTE 2 (now called 'Cheerankavu', was 'Paravoor'):
+These students see stops: Neduvathoor -> Ambalathumkala -> Ezhukone -> Perumpuzha -> Keralapuram -> College
+  Student 21 (Rayan N): bus=2, boarding_stop_id=16 -> 'College Of Engineering Perumon' (route_stop belongs to route_id=2)
+  Student 22 (Sanjay Nair): bus=2, boarding_stop_id=15 -> 'Keralapuram' (route_stop belongs to route_id=2)
+  Student 23 (Aarav Nair): bus=2, boarding_stop_id=15 -> 'Keralapuram' (route_stop belongs to route_id=2)
+  Student 24 (Aswathi): bus=2, boarding_stop_id=14 -> 'Perumpuzha' (route_stop belongs to route_id=2)
+  Student 25 (Nandana): bus=2, boarding_stop_id=14 -> 'Perumpuzha' (route_stop belongs to route_id=2)
+  Student 26 (Neeraj Nair): bus=2, boarding_stop_id=15 -> 'Keralapuram' (route_stop belongs to route_id=2)
+  Student 27 (Pranav): bus=2, boarding_stop_id=15 -> 'Keralapuram' (route_stop belongs to route_id=2)
+  Student 28 (Sana N): bus=2, boarding_stop_id=12 -> 'Ambalathumkala' (route_stop belongs to route_id=2)
+  Student 29 (Ziva N): bus=2, boarding_stop_id=11 -> 'Neduvathoor' (route_stop belongs to route_id=2)
+  Student 30 (Aadi N): bus=2, boarding_stop_id=11 -> 'Neduvathoor' (route_stop belongs to route_id=2)
+  Student 31 (Anikha Pillai): bus=2, boarding_stop_id=11 -> 'Neduvathoor' (route_stop belongs to route_id=2)
+  Student 32 (Ayaan Menon): bus=2, boarding_stop_id=12 -> 'Ambalathumkala' (route_stop belongs to route_id=2)
+  Student 33 (Nandana): bus=2, boarding_stop_id=15 -> 'Keralapuram' (route_stop belongs to route_id=2)
+  Student 34 (Devadath Pillai): bus=2, boarding_stop_id=12 -> 'Ambalathumkala' (route_stop belongs to route_id=2)
+  Student 35 (Anwita Menon): bus=2, boarding_stop_id=11 -> 'Neduvathoor' (route_stop belongs to route_id=2)
+  Student 36 (Devadath Menon): bus=2, boarding_stop_id=16 -> 'College Of Engineering Perumon' (route_stop belongs to route_id=2)
+  Student 37 (Asher Pillai): bus=2, boarding_stop_id=13 -> 'Ezhukone' (route_stop belongs to route_id=2)
+  Student 38 (Nila): bus=2, boarding_stop_id=16 -> 'College Of Engineering Perumon' (route_stop belongs to route_id=2)
+  Student 39 (Neha Nair): bus=2, boarding_stop_id=12 -> 'Ambalathumkala' (route_stop belongs to route_id=2)
+  Student 40 (Yadhu Menon): bus=2, boarding_stop_id=16 -> 'College Of Engineering Perumon' (route_stop belongs to route_id=2)
+
+STUDENTS ON ROUTE 5 (now called 'Paravoor', was 'Paripally'):
+These students see stops: Paravoor -> Nedumgolam -> Thirumukku -> Kallumthazham -> ... -> College
+  Student 81 (Anikha Menon): bus=5, boarding_stop_id=32 -> 'Thirumukku' (route_stop belongs to route_id=5)
+  Student 82 (Vihan N): bus=5, boarding_stop_id=35 -> 'Karicode' (route_stop belongs to route_id=5)
+  Student 83 (Milan): bus=5, boarding_stop_id=30 -> 'Paravoor' (route_stop belongs to route_id=5)
+  Student 84 (Aira): bus=5, boarding_stop_id=31 -> 'Nedumgolam' (route_stop belongs to route_id=5)
+  Student 85 (Fathima): bus=5, boarding_stop_id=34 -> 'Moonamkutty' (route_stop belongs to route_id=5)
+  Student 86 (Zoya Menon): bus=5, boarding_stop_id=33 -> 'Kallumthazham' (route_stop belongs to route_id=5)
+  Student 87 (Vihan Menon): bus=5, boarding_stop_id=36 -> 'Chandanathope' (route_stop belongs to route_id=5)
+  Student 88 (Aira Nair): bus=5, boarding_stop_id=31 -> 'Nedumgolam' (route_stop belongs to route_id=5)
+  Student 89 (Ameya Menon): bus=5, boarding_stop_id=32 -> 'Thirumukku' (route_stop belongs to route_id=5)
+  Student 90 (Vihan N): bus=5, boarding_stop_id=30 -> 'Paravoor' (route_stop belongs to route_id=5)
+  Student 91 (Isha Nair): bus=5, boarding_stop_id=34 -> 'Moonamkutty' (route_stop belongs to route_id=5)
+  Student 92 (Shreyas Menon): bus=5, boarding_stop_id=34 -> 'Moonamkutty' (route_stop belongs to route_id=5)
+  Student 93 (Yadhu N): bus=5, boarding_stop_id=34 -> 'Moonamkutty' (route_stop belongs to route_id=5)
+  Student 94 (Aswathi Nair): bus=5, boarding_stop_id=32 -> 'Thirumukku' (route_stop belongs to route_id=5)
+  Student 95 (Zoya N): bus=5, boarding_stop_id=31 -> 'Nedumgolam' (route_stop belongs to route_id=5)
+  Student 96 (Eva): bus=5, boarding_stop_id=33 -> 'Kallumthazham' (route_stop belongs to route_id=5)
+  Student 97 (Neha Nair): bus=5, boarding_stop_id=36 -> 'Chandanathope' (route_stop belongs to route_id=5)
+  Student 98 (Gautham Nair): bus=5, boarding_stop_id=32 -> 'Thirumukku' (route_stop belongs to route_id=5)
+  Student 99 (Shreyas Pillai): bus=5, boarding_stop_id=36 -> 'Chandanathope' (route_stop belongs to route_id=5)
+  Student 100 (Madhav): bus=5, boarding_stop_id=31 -> 'Nedumgolam' (route_stop belongs to route_id=5)
+
+============================================================
+KEY QUESTION: Do the boarding_stop_ids for each student belong to the SAME route_id as their default_route_id?
+============================================================
+All students' boarding stops match their assigned routes!

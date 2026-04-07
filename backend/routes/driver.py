@@ -17,6 +17,7 @@ router = APIRouter(prefix="/driver", tags=["Driver"])
 class EmergencyReport(BaseModel):
     type: str        # "breakdown", "delay", "traffic"
     message: str     # optional extra info
+    delay_mins: int = 0
 
 class StatusUpdate(BaseModel):
     status: str      # "Active", "Idle", "Maintenance", "Breakdown"
@@ -136,6 +137,7 @@ def get_my_route(username: str = Query(...)):
 
     return {
         "success": True,
+        "bus_id": bus["id"],
         "bus_number": bus["registration_number"],
         "bus_status": bus.get("status", "Active"),
         "route": {
@@ -267,6 +269,7 @@ def get_trip_summary(username: str = Query(...)):
     return {
         "success": True,
         "summary": {
+            "bus_id": bus["id"],
             "bus_number": bus["registration_number"],
             "route_id": bus.get("route_id"),
             "route_name": route.get("name", "—"),
@@ -286,7 +289,7 @@ def get_trip_summary(username: str = Query(...)):
 def report_emergency(data: EmergencyReport, username: str = Query(...)):
     """
     Handle emergency reports from the driver.
-    Updates the bus status based on emergency type.
+    Updates the bus status based on emergency type and dispatches notifications.
     """
     driver, bus, err = _get_driver_by_username(username)
     if err:
@@ -306,13 +309,44 @@ def report_emergency(data: EmergencyReport, username: str = Query(...)):
     # Update bus status in database
     try:
         supabase.table("buses").update({"status": new_status}).eq("id", bus["id"]).execute()
+
+        # Generate Notification Record
+        if data.type in ["delay", "traffic", "breakdown"]:
+            if data.type == "breakdown":
+                title = "Bus Breakdown Emergency!"
+                msg = f"Driver reported a breakdown: {data.message}."
+                noti_type = "alert"
+            else:
+                title = f"Bus Delayed ({data.delay_mins} mins)"
+                msg = f"Driver reported {data.type}: {data.message}. The bus will pause for {data.delay_mins} minutes."
+                noti_type = "warning"
+            
+            # Insert into notifications table
+            supabase.table("notifications").insert({
+                "type": noti_type,
+                "title": title,
+                "message": msg,
+                "target_role": "All",
+                "target_bus_id": bus["id"],
+                "delay_mins": data.delay_mins
+            }).execute()
+
+            # Tell the in-memory tracker to pause this bus if there is a delay!
+            if data.delay_mins > 0:
+                import datetime
+                from routes.admin import _bus_tracking_state
+                if bus["id"] in _bus_tracking_state:
+                    _bus_tracking_state[bus["id"]]["start_time"] += (data.delay_mins * 60)
+                    _bus_tracking_state[bus["id"]]["paused_until"] = datetime.datetime.now() + datetime.timedelta(minutes=data.delay_mins)
+                    _bus_tracking_state[bus["id"]]["delay_mins"] = data.delay_mins
+
     except Exception as e:
         print(f"[EMERGENCY ERROR] {e}")
         return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
 
     return {
         "success": True,
-        "message": f"Emergency reported: {data.type.upper()}. Bus status updated to '{new_status}'.",
+        "message": f"Delay set for {data.delay_mins} mins." if data.delay_mins > 0 else f"Emergency reported: {data.type.upper()}.",
         "new_status": new_status,
     }
 

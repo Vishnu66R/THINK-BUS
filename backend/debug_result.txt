@@ -1,0 +1,67 @@
+Bus 1 -> route_id=1 (Karunagapally): 10 good stops, 0 zero/missing
+    Karunagapally: (9.059804, 76.535633)
+    Kuttivattom: (9.03056, 76.54319)
+    Edapallykkotta: (9.01412, 76.53638)
+    Sangaramangalam: (8.99462, 76.53295)
+    Chavara: (8.97658, 76.53497)
+    Neendakara: (8.94288, 76.53804)
+    Shakthikulangara: (8.9302, 76.54756)
+    Kavanadu: (8.92548, 76.55565)
+    Kadavoor: (8.92183, 76.59488)
+    College Of Engineering Perumon: (8.9655, 76.61734)
+
+Bus 2 -> route_id=2 (Cheerankavu): 6 good stops, 0 zero/missing
+    Neduvathoor: (8.99822, 76.74002)
+    Ambalathumkala: (8.98724, 76.73603)
+    Ezhukone: (8.98038, 76.71144)
+    Perumpuzha: (8.93853, 76.67925)
+    Keralapuram: (8.93942, 76.65577)
+    College Of Engineering Perumon: (8.965496, 76.617311)
+
+Bus 3 -> route_id=3 (Kottarakkara): 7 good stops, 0 zero/missing
+    Kottarakkara: (9.00441, 76.77334)
+    Kottarakkara Railway Station: (9.00252, 76.76791)
+    Nedumpayikkulam: (8.977143, 76.703721)
+    Kundara: (8.96143, 76.68285)
+    Vellimon: (8.9517, 76.65241)
+    Cherumoodu: (8.949255, 76.647915)
+    College Of Engineering Perumon: (8.965496, 76.617311)
+
+Bus 4 -> route_id=4 (Kottiyam): 6 good stops, 0 zero/missing
+    Kottiyam: (8.86552, 76.67354)
+    Umayanalloor: (8.86523, 76.6535)
+    Pallimukku: (8.87621, 76.62234)
+    Polayathodu: (8.87837, 76.60861)
+    Chinnakkada: (8.88537, 76.5896)
+    College Of Engineering Perumon: (8.965496, 76.617311)
+
+Bus 5 -> route_id=5 (Paravoor): 8 good stops, 0 zero/missing
+    Paravoor: (8.80832, 76.66998)
+    Nedumgolam: (8.83754, 76.68612)
+    Thirumukku: (8.86175, 76.70551)
+    Kallumthazham: (8.90305, 76.62367)
+    Moonamkutty: (8.90915, 76.62488)
+    Karicode: (8.9167, 76.63256)
+    Chandanathope: (8.93052, 76.63831)
+    College Of Engineering Perumon: (8.965496, 76.617311)
+
+Bus 6 -> route_id=6 (Mevarom): 7 good stops, 0 zero/missing
+    Mevarom: (8.86807, 76.64479)
+    Thattamala: (8.87214, 76.63814)
+    Madanada: (8.87625, 76.61526)
+    Collge Junction: (8.879973, 76.604587)
+    Kollam Railway Station: (8.885315, 76.594555)
+    High School Junction: (8.89279, 76.57848)
+    College Of Engineering Perumon: (8.965496, 76.617311)
+
+Bus 7 -> route_id=7 (Paripally): 10 good stops, 0 zero/missing
+    Paripally: (8.81358, 76.75791)
+    Kalluvathukal: (8.8334, 76.7445)
+    Karamcode: (8.85111, 76.73169)
+    Chathannoor: (8.86357, 76.71178)
+    Ithikkara: (8.86302, 76.6959)
+    Palathara: (8.87837, 76.63923)
+    SN Public School: (8.88393, 76.63492)
+    Mangad: (8.90744, 76.62058)
+    Anchalumoodu: (8.93192, 76.60352)
+    College Of Engineering Perumon: (8.965496, 76.617311)

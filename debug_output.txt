@@ -1,0 +1,101 @@
+============================================================
+1. ROUTES TABLE (current live state)
+============================================================
+  Route 1: name=Karunagapally, start=Karunagapally
+  Route 2: name=Cheerankavu, start=Neduvathoor
+  Route 3: name=Kottarakkara, start=Kottarakkara
+  Route 4: name=Kottiyam, start=Kottiyam
+  Route 5: name=Paravoor, start=Paravoor
+  Route 6: name=Mevarom, start=Mevarom
+  Route 7: name=Paripally, start=Paripally
+
+============================================================
+2. ROUTE_STOPS (first stop per route)
+============================================================
+  route_id=1 (Karunagapally): stops=['Karunagapally', 'Kuttivattom', 'Edapallykkotta', 'Sangaramangalam', 'Chavara', 'Neendakara', 'Shakthikulangara', 'Kavanadu', 'Kadavoor', 'College Of Engineering Perumon']
+  route_id=2 (Cheerankavu): stops=['Neduvathoor', 'Ambalathumkala', 'Ezhukone', 'Perumpuzha', 'Keralapuram', 'College Of Engineering Perumon']
+  route_id=3 (Kottarakkara): stops=['Kottarakkara', 'Kottarakkara Railway Station', 'Nedumpayikkulam', 'Kundara', 'Vellimon', 'Cherumoodu', 'College Of Engineering Perumon']
+  route_id=4 (Kottiyam): stops=['Kottiyam', 'Umayanalloor', 'Pallimukku', 'Polayathodu', 'Chinnakkada', 'College Of Engineering Perumon']
+  route_id=5 (Paravoor): stops=['Paravoor', 'Nedumgolam', 'Thirumukku', 'Kallumthazham', 'Moonamkutty', 'Karicode', 'Chandanathope', 'College Of Engineering Perumon']
+  route_id=6 (Mevarom): stops=['Mevarom', 'Thattamala', 'Madanada', 'Collge Junction', 'Kollam Railway Station', 'High School Junction', 'College Of Engineering Perumon']
+  route_id=7 (Paripally): stops=['Paripally', 'Kalluvathukal', 'Karamcode', 'Chathannoor', 'Ithikkara', 'Palathara', 'SN Public School', 'Mangad', 'Anchalumoodu', 'College Of Engineering Perumon']
+
+============================================================
+3. BUSES TABLE
+============================================================
+  Bus 1: reg=KL-02-B-2001, driver=1, route=1
+  Bus 2: reg=KL-02-B-2002, driver=2, route=2
+  Bus 3: reg=KL-02-B-2003, driver=3, route=3
+  Bus 4: reg=KL-02-B-2004, driver=4, route=4
+  Bus 5: reg=KL-02-B-2005, driver=5, route=5
+  Bus 6: reg=KL-02-B-2006, driver=6, route=6
+  Bus 7: reg=KL-02-B-2007, driver=7, route=7
+
+============================================================
+4. STOP_LOCATIONS (coords for each stop)
+============================================================
+  stop_id=1: (route 1) Karunagapally -> lat=9.059804, lng=76.535633
+  stop_id=2: (route 1) Kuttivattom -> lat=9.03056, lng=76.54319
+  stop_id=3: (route 1) Edapallykkotta -> lat=9.01412, lng=76.53638
+  stop_id=4: (route 1) Sangaramangalam -> lat=8.99462, lng=76.53295
+  stop_id=5: (route 1) Chavara -> lat=8.97658, lng=76.53497
+  stop_id=6: (route 1) Neendakara -> lat=8.94288, lng=76.53804
+  stop_id=7: (route 1) Shakthikulangara -> lat=8.9302, lng=76.54756
+  stop_id=8: (route 1) Kavanadu -> lat=8.92548, lng=76.55565
+  stop_id=9: (route 1) Kadavoor -> lat=8.92183, lng=76.59488
+  stop_id=10: (route 1) College Of Engineering Perumon -> lat=8.9655, lng=76.61734
+  stop_id=11: (route 2) Neduvathoor -> lat=8.99822, lng=76.74002
+  stop_id=12: (route 2) Ambalathumkala -> lat=8.98724, lng=76.73603
+  stop_id=13: (route 2) Ezhukone -> lat=8.98038, lng=76.71144
+  stop_id=14: (route 2) Perumpuzha -> lat=8.93853, lng=76.67925
+  stop_id=15: (route 2) Keralapuram -> lat=8.93942, lng=76.65577
+  stop_id=16: (route 2) College Of Engineering Perumon -> lat=8.965496, lng=76.617311
+  stop_id=17: (route 3) Kottarakkara -> lat=9.00441, lng=76.77334
+  stop_id=18: (route 3) Kottarakkara Railway Station -> lat=9.00252, lng=76.76791
+  stop_id=19: (route 3) Nedumpayikkulam -> lat=8.977143, lng=76.703721
+  stop_id=20: (route 3) Kundara -> lat=8.96143, lng=76.68285
+  stop_id=21: (route 3) Vellimon -> lat=8.9517, lng=76.65241
+  stop_id=22: (route 3) Cherumoodu -> lat=8.949255, lng=76.647915
+  stop_id=23: (route 3) College Of Engineering Perumon -> lat=8.965496, lng=76.617311
+  stop_id=24: (route 4) Kottiyam -> lat=8.86552, lng=76.67354
+  stop_id=25: (route 4) Umayanalloor -> lat=8.86523, lng=76.6535
+  stop_id=26: (route 4) Pallimukku -> lat=8.87621, lng=76.62234
+  stop_id=27: (route 4) Polayathodu -> lat=8.87837, lng=76.60861
+  stop_id=28: (route 4) Chinnakkada -> lat=8.88537, lng=76.5896
+  stop_id=29: (route 4) College Of Engineering Perumon -> lat=8.965496, lng=76.617311
+  stop_id=30: (route 5) Paravoor -> lat=8.80832, lng=76.66998
+  stop_id=31: (route 5) Nedumgolam -> lat=8.83754, lng=76.68612
+  stop_id=32: (route 5) Thirumukku -> lat=8.86175, lng=76.70551
+  stop_id=33: (route 5) Kallumthazham -> lat=8.90305, lng=76.62367
+  stop_id=34: (route 5) Moonamkutty -> lat=8.90915, lng=76.62488
+  stop_id=35: (route 5) Karicode -> lat=8.9167, lng=76.63256
+  stop_id=36: (route 5) Chandanathope -> lat=8.93052, lng=76.63831
+  stop_id=37: (route 5) College Of Engineering Perumon -> lat=8.965496, lng=76.617311
+  stop_id=38: (route 6) Mevarom -> lat=8.86807, lng=76.64479
+  stop_id=39: (route 6) Thattamala -> lat=8.87214, lng=76.63814
+  stop_id=40: (route 6) Madanada -> lat=8.87625, lng=76.61526
+  stop_id=41: (route 6) Collge Junction -> lat=8.879973, lng=76.604587
+  stop_id=42: (route 6) Kollam Railway Station -> lat=8.885315, lng=76.594555
+  stop_id=43: (route 6) High School Junction -> lat=8.89279, lng=76.57848
+  stop_id=44: (route 6) College Of Engineering Perumon -> lat=8.965496, lng=76.617311
+  stop_id=45: (route 7) Paripally -> lat=8.81358, lng=76.75791
+  stop_id=46: (route 7) Kalluvathukal -> lat=8.8334, lng=76.7445
+  stop_id=47: (route 7) Karamcode -> lat=8.85111, lng=76.73169
+  stop_id=48: (route 7) Chathannoor -> lat=8.86357, lng=76.71178
+  stop_id=49: (route 7) Ithikkara -> lat=8.86302, lng=76.6959
+  stop_id=50: (route 7) Palathara -> lat=8.87837, lng=76.63923
+  stop_id=51: (route 7) SN Public School -> lat=8.88393, lng=76.63492
+  stop_id=52: (route 7) Mangad -> lat=8.90744, lng=76.62058
+  stop_id=53: (route 7) Anchalumoodu -> lat=8.93192, lng=76.60352
+  stop_id=54: (route 7) College Of Engineering Perumon -> lat=8.965496, lng=76.617311
+
+============================================================
+5. MATCH CHECK
+============================================================
+  Route 1 'Karunagapally': first_stop='Karunagapally' -> MATCH
+  Route 2 'Cheerankavu': first_stop='Neduvathoor' -> MISMATCH
+  Route 3 'Kottarakkara': first_stop='Kottarakkara' -> MATCH
+  Route 4 'Kottiyam': first_stop='Kottiyam' -> MATCH
+  Route 5 'Paravoor': first_stop='Paravoor' -> MATCH
+  Route 6 'Mevarom': first_stop='Mevarom' -> MATCH
+  Route 7 'Paripally': first_stop='Paripally' -> MATCH

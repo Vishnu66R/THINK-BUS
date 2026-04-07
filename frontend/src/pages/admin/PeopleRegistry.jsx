@@ -169,11 +169,11 @@ function PeopleRegistry() {
     setModalMode("edit");
     if (activeTab === "students") {
       setFormData({
-        id: item.id,
-        full_name: item.full_name,
-        adm_number: item.adm_number,
-        semester: item.semester,
-        department: item.department,
+        id: item.id || null,
+        full_name: item.full_name || "",
+        adm_number: item.adm_number || "",
+        semester: item.semester || "",
+        department: item.department || "",
         parent_id: item.parent_id || "",
         boarding_stop_id: item.boarding_stop_id || "",
         default_route_id: item.default_route_id || "",
@@ -181,8 +181,8 @@ function PeopleRegistry() {
       });
     } else {
       setFormData({
-        id: item.id,
-        full_name: item.full_name,
+        id: item.id || null,
+        full_name: item.full_name || "",
         license_number: item.license_number || "",
         phone_number: item.phone_number || "",
         experience_years: item.experience_years || ""
@@ -340,6 +340,12 @@ function PeopleRegistry() {
                 </div>
                 <div className="pr-detail-row">
                   <span className="pr-detail-icon">
+                    <User size={14} />
+                  </span>
+                  <span>Parent: {s.parent_name ? <span className="pr-detail-value">{s.parent_name}</span> : <i>None</i>}</span>
+                </div>
+                <div className="pr-detail-row">
+                  <span className="pr-detail-icon">
                     <Route size={14} />
                   </span>
                   <span>Route: {s.route_name ? <span className="pr-detail-value">{s.route_name}</span> : <i>Unassigned</i>}</span>
@@ -426,16 +432,16 @@ function PeopleRegistry() {
                   <>
                     <div className="fm-form-group">
                       <label>Full Name *</label>
-                      <input type="text" required value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} />
+                      <input type="text" required value={formData.full_name || ""} onChange={e => setFormData({...formData, full_name: e.target.value})} />
                     </div>
                     <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:10}}>
                       <div className="fm-form-group">
                         <label>Admission No *</label>
-                        <input type="text" required value={formData.adm_number} onChange={e => setFormData({...formData, adm_number: e.target.value})} />
+                        <input type="text" required value={formData.adm_number || ""} onChange={e => setFormData({...formData, adm_number: e.target.value})} />
                       </div>
                       <div className="fm-form-group">
                         <label>Semester *</label>
-                        <select required value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})}>
+                        <select required value={formData.semester || ""} onChange={e => setFormData({...formData, semester: e.target.value})}>
                           <option value="">--Select--</option>
                           <option value="S1">S1</option><option value="S2">S2</option>
                           <option value="S3">S3</option><option value="S4">S4</option>
@@ -446,7 +452,7 @@ function PeopleRegistry() {
                     </div>
                     <div className="fm-form-group">
                       <label>Department *</label>
-                      <input type="text" required value={formData.department} placeholder="e.g. Computer Science" onChange={e => setFormData({...formData, department: e.target.value})} />
+                      <input type="text" required value={formData.department || ""} placeholder="e.g. Computer Science" onChange={e => setFormData({...formData, department: e.target.value})} />
                     </div>
                     
                     {/* Relational Dropdowns */}
@@ -454,15 +460,15 @@ function PeopleRegistry() {
                     
                     <div className="fm-form-group">
                       <label>Parent Account</label>
-                      <select value={formData.parent_id} onChange={e => setFormData({...formData, parent_id: e.target.value})}>
+                      <select value={formData.parent_id || ""} onChange={e => setFormData({...formData, parent_id: e.target.value})}>
                         <option value="">-- No Parent Linked --</option>
-                        {parents.map(p => <option key={p.id} value={p.id}>{p.username} (ID: {p.id})</option>)}
+                        {parents.map(p => <option key={p.id} value={p.id}>{p.full_name} (ID: {p.id})</option>)}
                       </select>
                     </div>
 
                     <div className="fm-form-group">
                       <label>Home Boarding Stop</label>
-                      <select value={formData.boarding_stop_id} onChange={e => setFormData({...formData, boarding_stop_id: e.target.value})}>
+                      <select value={formData.boarding_stop_id || ""} onChange={e => setFormData({...formData, boarding_stop_id: e.target.value})}>
                         <option value="">-- Unassigned --</option>
                         {stops.map(st => <option key={st.id} value={st.id}>{st.stop_name} ({st.route_name})</option>)}
                       </select>
@@ -471,14 +477,14 @@ function PeopleRegistry() {
                     <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:10}}>
                       <div className="fm-form-group">
                         <label>Assigned Route</label>
-                        <select value={formData.default_route_id} onChange={e => setFormData({...formData, default_route_id: e.target.value})}>
+                        <select value={formData.default_route_id || ""} onChange={e => setFormData({...formData, default_route_id: e.target.value})}>
                           <option value="">-- None --</option>
                           {routes.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                         </select>
                       </div>
                       <div className="fm-form-group">
                         <label>Assigned Bus</label>
-                        <select value={formData.current_bus_id} onChange={e => setFormData({...formData, current_bus_id: e.target.value})}>
+                        <select value={formData.current_bus_id || ""} onChange={e => setFormData({...formData, current_bus_id: e.target.value})}>
                           <option value="">-- None --</option>
                           {buses.map(b => <option key={b.id} value={b.id}>{b.registration_number}</option>)}
                         </select>
@@ -489,20 +495,20 @@ function PeopleRegistry() {
                   <>
                     <div className="fm-form-group">
                       <label>Driver Full Name *</label>
-                      <input type="text" required value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} />
+                      <input type="text" required value={formData.full_name || ""} onChange={e => setFormData({...formData, full_name: e.target.value})} />
                     </div>
                     <div className="fm-form-group">
                       <label>Phone Number</label>
-                      <input type="text" value={formData.phone_number} onChange={e => setFormData({...formData, phone_number: e.target.value})} />
+                      <input type="text" value={formData.phone_number || ""} onChange={e => setFormData({...formData, phone_number: e.target.value})} />
                     </div>
                     <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:10}}>
                       <div className="fm-form-group">
                         <label>License Number</label>
-                        <input type="text" value={formData.license_number} onChange={e => setFormData({...formData, license_number: e.target.value})} />
+                        <input type="text" value={formData.license_number || ""} onChange={e => setFormData({...formData, license_number: e.target.value})} />
                       </div>
                       <div className="fm-form-group">
                         <label>Experience (Years)</label>
-                        <input type="number" value={formData.experience_years} onChange={e => setFormData({...formData, experience_years: e.target.value})} />
+                        <input type="number" value={formData.experience_years || ""} onChange={e => setFormData({...formData, experience_years: e.target.value})} />
                       </div>
                     </div>
                   </>

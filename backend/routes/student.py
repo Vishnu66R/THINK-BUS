@@ -25,7 +25,7 @@ def get_student_dashboard(username: str):
 
         # 2. Get the student record including relational fields
         student_res = supabase.table("students").select(
-            "*, routes:default_route_id(name), route_stops:boarding_stop_id(stop_name), buses:current_bus_id(id, registration_number, status, driver_id)"
+            "*, routes:default_route_id(name), route_stops:boarding_stop_id(stop_name), buses:current_bus_id(id, registration_number, status, driver_id, drivers:driver_id(full_name))"
         ).eq("user_id", user_id).execute()
 
         if not student_res.data:
@@ -42,34 +42,64 @@ def get_student_dashboard(username: str):
         driver_name = "Unassigned"
         
         # 4. If assigned to a bus with a driver, get driver name
-        if bus_data.get("driver_id"):
-            driver_res = supabase.table("drivers").select("full_name").eq("id", bus_data["driver_id"]).execute()
-            if driver_res.data:
-                driver_name = driver_res.data[0]["full_name"]
+        if bus_data.get("driver_id") and bus_data.get("drivers"):
+            driver_name = bus_data["drivers"].get("full_name", "Unassigned")
 
         # 5. Fetch all stops for the student's route with coordinates
         route_id = student.get("default_route_id")
         stops_data = []
+        student_stop_time = 0
+        total_route_time = 0
+
         if route_id:
             # Join route_stops with stop_locations
             stops_res = supabase.table("route_stops").select(
-                "id, stop_name, stop_order, stop_locations(latitude, longitude)"
+                "id, stop_name, stop_order, time_from_start_mins, stop_locations(latitude, longitude)"
             ).eq("route_id", route_id).order("stop_order").execute()
 
             if stops_res.data:
                 for s in stops_res.data:
                     loc = s.get("stop_locations") or {}
+                    is_boarding = (s["id"] == student.get("boarding_stop_id"))
+                    time_mins = s.get("time_from_start_mins") or 0
+                    
+                    if is_boarding:
+                        student_stop_time = time_mins
+                    
+                    total_route_time = max(total_route_time, time_mins)
+
                     stops_data.append({
                         "id": s["id"],
                         "name": s["stop_name"],
                         "lat": float(loc.get("latitude") or 0.0),
                         "lng": float(loc.get("longitude") or 0.0),
-                        "isBoarding": s["id"] == student.get("boarding_stop_id")
+                        "isBoarding": is_boarding
                     })
 
         # 6. Fetch map configuration
         map_config_res = supabase.table("map_config").select("*").execute()
         map_config = {item["config_key"]: item["config_value"] for item in map_config_res.data} if map_config_res.data else {}
+
+        # 7. Calculate Real-Time ETA
+        eta_mins = None
+        tracking_active = False
+        
+        from routes.admin import get_tracking_status
+        if bus_id:
+            track_info = get_tracking_status(bus_id)
+            if track_info and track_info.get("active"):
+                tracking_active = True
+                elapsed = track_info.get("elapsed_mins", 0)
+                direction = track_info.get("direction", "to_college")
+                
+                s_time = student_stop_time
+                if direction == "to_stop":
+                    s_time = total_route_time - s_time
+                    
+                if elapsed < s_time:
+                    eta_mins = int(round(s_time - elapsed))
+                else:
+                    eta_mins = 0
 
         # Format Response Payload
         payload = {
@@ -84,6 +114,8 @@ def get_student_dashboard(username: str):
                 "driver_name": driver_name,
                 "status": bus_data.get("status") or "Normal",
                 "estimated_arrival": "8:15 AM",
+                "eta_mins": eta_mins,
+                "tracking_active": tracking_active,
                 "last_updated": "Just now",
                 "alert_message": "Bus Route has been changed due to traffic" if bus_data.get("status") == "Rerouted" else None,
                 "stops": stops_data,
@@ -190,6 +222,27 @@ def get_student_alerts(username: str):
                             })
             except Exception as e:
                 print(f"Error reading simulation cache: {e}")
+
+        # Real-time DB Notifications (Driver Delays, etc.)
+        try:
+            notif_res = supabase.table("notifications").select("*").eq("is_active", True).execute()
+            db_notifs = notif_res.data or []
+            
+            for n in db_notifs:
+                role_match = n.get("target_role") in ["All", "Student"]
+                bus_match = n.get("target_bus_id") is None or n.get("target_bus_id") == student.get("current_bus_id")
+                
+                if role_match and bus_match:
+                    alerts.append({
+                        "id": f"db-{n['id']}",
+                        "type": n.get("type", "warning"),
+                        "title": n["title"],
+                        "message": n["message"],
+                        "timestamp": "Just Now",
+                        "read": False
+                    })
+        except Exception as e:
+            print(f"Error fetching DB notifications: {e}")
 
         # Static / generic notifications
         alerts.append({

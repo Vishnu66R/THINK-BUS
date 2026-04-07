@@ -160,11 +160,11 @@ export async function fetchDriverStatus(username) {
 }
 
 // POST /driver/emergency
-export async function reportEmergency(username, type, message) {
+export async function reportEmergency(username, type, message, delayMins = 0) {
   const response = await fetch(`${BASE_URL}/driver/emergency?username=${encodeURIComponent(username)}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ type, message }),
+    body: JSON.stringify({ type, message, delay_mins: delayMins }),
   });
   return response.json();
 }
@@ -421,3 +421,100 @@ export async function fetchSimulatedDateTime() {
     return { success: false, data: null };
   }
 }
+
+// ─── Bus Tracking API ───
+
+// POST /admin/start-tracking — start tracking a bus
+export async function startBusTracking(bus_id, direction) {
+  try {
+    const response = await fetch(`${BASE_URL}/admin/start-tracking`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bus_id, direction }),
+    });
+    return response.json();
+  } catch {
+    return { success: false, message: "Network error." };
+  }
+}
+
+// POST /admin/start-all-tracking — start tracking all buses
+export async function startAllBusTracking(direction) {
+  try {
+    const response = await fetch(`${BASE_URL}/admin/start-all-tracking`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ direction }),
+    });
+    return response.json();
+  } catch {
+    return { success: false, message: "Network error." };
+  }
+}
+
+// POST /admin/stop-all-tracking — stop tracking all buses
+export async function stopAllBusTracking() {
+  try {
+    const response = await fetch(`${BASE_URL}/admin/stop-all-tracking`, {
+      method: "POST",
+    });
+    return response.json();
+  } catch {
+    return { success: false, message: "Network error." };
+  }
+}
+
+// POST /admin/stop-tracking/:bus_id — stop tracking a bus
+export async function stopBusTracking(busId) {
+  try {
+    const response = await fetch(`${BASE_URL}/admin/stop-tracking/${busId}`, {
+      method: "POST",
+    });
+    return response.json();
+  } catch {
+    return { success: false, message: "Network error." };
+  }
+}
+
+// GET /admin/tracking-status/:bus_id — get current tracking position
+export async function fetchTrackingStatus(busId) {
+  try {
+    const response = await fetch(`${BASE_URL}/admin/tracking-status/${busId}`);
+    return response.json();
+  } catch {
+    return { success: false, active: false };
+  }
+}
+
+// GET /admin/tracking-active — get all active tracked buses
+export async function fetchActiveTracking() {
+  try {
+    const response = await fetch(`${BASE_URL}/admin/tracking-active`);
+    return response.json();
+  } catch {
+    return { success: false, data: {} };
+  }
+}
+
+// GET /admin/notifications — fetch active bus/system notifications
+export async function fetchAdminNotifications() {
+  try {
+    const response = await fetch(`${BASE_URL}/admin/notifications`);
+    return response.json();
+  } catch {
+    return { success: false, data: [] };
+  }
+}
+
+// POST /admin/notifications/dismiss/:id — dismiss a notification
+export async function dismissAdminNotification(notifId) {
+  try {
+    const response = await fetch(`${BASE_URL}/admin/notifications/dismiss/${notifId}`, {
+      method: "POST"
+    });
+    return response.json();
+  } catch {
+    return { success: false, message: "Network error." };
+  }
+}
+

@@ -173,14 +173,32 @@ function Navigate() {
       <h3 className="section-title" style={{ marginTop: '30px', fontSize: '1.2rem', color: '#1e293b' }}>Live Navigation Map</h3>
       <div className="admin-map-card" style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0', width: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
         {stops && stops.length > 0 ? (
-          <MapView 
-            stops={stops.filter(s => s.lat !== 0 || s.lng !== 0)} 
-            routeId={data.route?.id}
-            height="500px"
-            center={stops[currentStopIdx] ? [stops[currentStopIdx].lat, stops[currentStopIdx].lng] : [8.8932, 76.6141]}
-            zoom={parseInt(data.map_config?.default_zoom || '13')}
-            tileUrl={data.map_config?.osm_tile_url}
-          />
+          <>
+            <MapView 
+              stops={stops.filter(s => s.lat !== 0 || s.lng !== 0)} 
+              routeId={data.route?.id}
+              busId={data?.bus_id}
+              height="500px"
+              center={stops[currentStopIdx] ? [stops[currentStopIdx].lat, stops[currentStopIdx].lng] : [8.8932, 76.6141]}
+              zoom={parseInt(data.map_config?.default_zoom || '13')}
+              tileUrl={data.map_config?.osm_tile_url}
+            />
+            <div style={{ padding: '15px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'center' }}>
+              <button 
+                onClick={() => { alert("Google Maps integration coming soon!"); }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  background: '#4285F4', color: 'white', padding: '10px 24px', 
+                  borderRadius: '10px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(66, 133, 244, 0.3)', transition: 'background 0.2s'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.background = '#3367d6'}
+                onMouseOut={(e) => e.currentTarget.style.background = '#4285F4'}
+              >
+                <MapIcon size={20} /> Open in Google Maps
+              </button>
+            </div>
+          </>
         ) : (
           <div style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
             <div style={{ fontSize: '3rem', marginBottom: '12px', color: '#94a3b8' }}>

@@ -1,11 +1,22 @@
 // frontend/src/pages/admin/SystemConfig.jsx
 // -------------------------------------------
-// System Configuration page - system settings.
+// System Configuration page - system settings + bus tracking controls.
 // -------------------------------------------
 
-import { useState } from "react";
-import { Settings, Clock, Calendar, Play, CheckCircle, XCircle, Brain } from "lucide-react";
-import { saveSimulatedDateTime } from "../../api";
+import { useState, useEffect, useRef } from "react";
+import {
+  Settings, Clock, Calendar, Play, CheckCircle, XCircle, Brain,
+  Bus, MapPin, ArrowRight, Square, Navigation
+} from "lucide-react";
+import {
+  saveSimulatedDateTime,
+  fetchAdminBuses,
+  startAllBusTracking,
+  stopAllBusTracking,
+  stopBusTracking,
+  fetchTrackingStatus,
+  fetchActiveTracking
+} from "../../api";
 import "./SystemConfig.css";
 
 const RISK_COLORS = {
@@ -20,13 +31,114 @@ function SystemConfig() {
   const [sysTime, setSysTime] = useState("");
   const [sysDate, setSysDate] = useState("");
   const [simulating, setSimulating] = useState(false);
-  const [toast, setToast] = useState(null); // { message, type }
+  const [toast, setToast] = useState(null);
   const [mlResult, setMlResult] = useState(null);
   const [mlLoading, setMlLoading] = useState(false);
+
+  // Bus Tracking State
+  const [buses, setBuses] = useState([]);
+  const [trackingStates, setTrackingStates] = useState({}); // { busId: { active, direction, ... } }
+  const [startingTracking, setStartingTracking] = useState(false);
+  const trackingIntervalRef = useRef(null);
 
   function showToast(message, type = "success") {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3500);
+  }
+
+  // Load buses on mount
+  useEffect(() => {
+    loadBuses();
+    loadActiveTracking();
+    return () => {
+      if (trackingIntervalRef.current) clearInterval(trackingIntervalRef.current);
+    };
+  }, []);
+
+  // Poll tracking status every 3 seconds for all active buses
+  useEffect(() => {
+    if (trackingIntervalRef.current) clearInterval(trackingIntervalRef.current);
+
+    trackingIntervalRef.current = setInterval(async () => {
+      await loadActiveTracking();
+    }, 3000);
+
+    return () => {
+      if (trackingIntervalRef.current) clearInterval(trackingIntervalRef.current);
+    };
+  }, []);
+
+  async function loadBuses() {
+    const res = await fetchAdminBuses();
+    if (res.success && res.data) {
+      setBuses(res.data);
+    }
+  }
+
+  async function loadActiveTracking() {
+    const res = await fetchActiveTracking();
+    if (res.success && res.data) {
+      // For each active bus, also fetch detailed position status
+      const newStates = {};
+      for (const busIdStr of Object.keys(res.data)) {
+        const busId = parseInt(busIdStr);
+        const statusRes = await fetchTrackingStatus(busId);
+        if (statusRes.success) {
+          newStates[busId] = statusRes;
+        }
+      }
+      setTrackingStates(newStates);
+    }
+  }
+
+  async function handleStartTracking(direction) {
+    if (!sysDate || !sysTime) {
+      showToast("Please set both Date and Time before starting tracking.", "warning");
+      return;
+    }
+
+    setStartingTracking(true);
+    // Auto-save the Date and Time to DB when starting fleet
+    const timeRes = await saveSimulatedDateTime(sysDate, sysTime);
+    if (!timeRes.success) {
+      setStartingTracking(false);
+      showToast("Failed to save time constraints to database.", "error");
+      return;
+    }
+
+    const res = await startAllBusTracking(direction);
+    setStartingTracking(false);
+    if (res.success) {
+      const dirLabel = direction === "to_college" ? "Stops → College" : "College → Stops";
+      showToast(`Fleet tracking started: ${dirLabel}`);
+      loadActiveTracking();
+    } else {
+      showToast(res.message || "Failed to start tracking", "error");
+    }
+  }
+
+  async function handleStopAllTracking() {
+    const res = await stopAllBusTracking();
+    if (res.success) {
+      showToast('All fleet tracking stopped');
+      setTrackingStates({});
+    } else {
+      showToast(res.message || "Failed to stop tracking", "error");
+    }
+  }
+
+  async function handleStopTracking(busId) {
+    const res = await stopBusTracking(busId);
+    if (res.success) {
+      showToast(`Bus ${busId} tracking stopped`);
+      setTrackingStates(prev => {
+        const next = { ...prev };
+        delete next[busId];
+        return next;
+      });
+    } else {
+      showToast(res.message || "Failed to stop tracking", "error");
+    }
   }
 
   async function handleSimulate() {
@@ -37,7 +149,6 @@ function SystemConfig() {
     setSimulating(true);
     setMlResult(null);
 
-    // Step 1: Save the simulated date/time
     const res = await saveSimulatedDateTime(sysDate, sysTime);
     setSimulating(false);
 
@@ -48,7 +159,6 @@ function SystemConfig() {
       return;
     }
 
-    // Step 2: Run the ML model
     setMlLoading(true);
     try {
       const mlRes = await fetch("http://127.0.0.1:8000/run-ml");
@@ -60,6 +170,8 @@ function SystemConfig() {
       setMlLoading(false);
     }
   }
+
+  const isAnyBusTracked = Object.keys(trackingStates).length > 0;
 
   return (
     <div className="system-config-page" id="system-config-page">
@@ -86,7 +198,7 @@ function SystemConfig() {
           <div>
             <h2>System Configuration</h2>
             <p style={{ color: "#6b7280", margin: "4px 0 0 0", fontSize: "14px" }}>
-              Manage global settings, dates, and times for the ThinkBus system.
+              Manage global settings, bus tracking, and the ThinkBus system.
             </p>
           </div>
         </div>
@@ -159,6 +271,148 @@ function SystemConfig() {
       <p style={{ textAlign: "center", color: "#9ca3af", fontSize: "13px", marginTop: "12px" }}>
         Clicking <strong>Simulate</strong> will push the selected date &amp; time to all ThinkBus dashboards and run the ML breakdown model.
       </p>
+
+      {/* ─── Bus Tracking Control Panel ─── */}
+      <div className="sc-tracking-panel">
+        <div className="sc-tracking-header">
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div className="sc-tracking-icon">
+              <Navigation size={22} />
+            </div>
+            <div>
+              <h3 style={{ margin: 0, fontSize: "20px", color: "#1e293b" }}>Bus Tracking Control</h3>
+              <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#64748b" }}>Start real-time bus tracking based on route stop timings</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Start Tracking Buttons */}
+        {!isAnyBusTracked ? (
+          <div className="sc-tracking-actions">
+            <button
+              className="sc-track-btn sc-track-btn-to-college"
+              onClick={() => handleStartTracking("to_college")}
+              disabled={startingTracking}
+            >
+              <MapPin size={18} />
+              <span>Start Fleet: Stops → College</span>
+              <ArrowRight size={18} />
+            </button>
+
+            <button
+              className="sc-track-btn sc-track-btn-to-stop"
+              onClick={() => handleStartTracking("to_stop")}
+              disabled={startingTracking}
+            >
+              <Bus size={18} />
+              <span>Start Fleet: College → Stops</span>
+              <ArrowRight size={18} />
+            </button>
+          </div>
+        ) : (
+          <div className="sc-tracking-active-badge">
+            <div className="sc-pulse-dot"></div>
+            <span>Fleet is currently being tracked in real-time</span>
+            <button
+              className="sc-stop-track-btn"
+              onClick={handleStopAllTracking}
+            >
+              <Square size={14} />
+              Stop All
+            </button>
+          </div>
+        )}
+
+        {/* Active Tracking Status Cards */}
+        {Object.keys(trackingStates).length > 0 && (
+          <div className="sc-tracking-live-section">
+            <h4 style={{ margin: "0 0 16px", color: "#1e293b", fontSize: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+              <span className="sc-live-indicator"></span>
+              Live Tracking Status
+            </h4>
+            <div className="sc-tracking-cards">
+              {Object.entries(trackingStates).map(([busIdStr, status]) => {
+                const busId = parseInt(busIdStr);
+                const bus = buses.find(b => b.id === busId);
+                if (!status.active) return null;
+
+                const progress = status.total_route_mins > 0
+                  ? Math.min((status.elapsed_mins / status.total_route_mins) * 100, 100)
+                  : 0;
+                const dirLabel = status.direction === "to_college" ? "Stop → College" : "College → Stop";
+
+                return (
+                  <div className="sc-tracking-card" key={busId}>
+                    <div className="sc-tracking-card-top">
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div className="sc-tracking-card-avatar">
+                          <Bus size={18} />
+                        </div>
+                        <div>
+                          <h5 style={{ margin: 0, fontSize: "15px", color: "#0f172a" }}>
+                            Bus #{busId} — {bus?.registration_number || ""}
+                          </h5>
+                          <p style={{ margin: "2px 0 0", fontSize: "12px", color: "#64748b" }}>
+                            {dirLabel} • Route: {bus?.routes?.name || "—"}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        className="sc-stop-track-btn-sm"
+                        onClick={() => handleStopTracking(busId)}
+                        title="Stop Tracking"
+                      >
+                        <Square size={12} />
+                      </button>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="sc-progress-wrapper">
+                      <div className="sc-progress-bar">
+                        <div
+                          className="sc-progress-fill"
+                          style={{ width: `${progress}%` }}
+                        ></div>
+                        <div
+                          className="sc-progress-bus-icon"
+                          style={{ left: `${Math.min(progress, 96)}%` }}
+                        >
+                          🚌
+                        </div>
+                      </div>
+                      <div className="sc-progress-labels">
+                        <span>{status.from_stop || "Start"}</span>
+                        <span style={{ fontWeight: 700, color: "#4f46e5" }}>
+                          {Math.round(progress)}%
+                        </span>
+                        <span>{status.to_stop || "End"}</span>
+                      </div>
+                    </div>
+
+                    {/* Stats Row */}
+                    <div className="sc-tracking-stats">
+                      <div className="sc-tracking-stat">
+                        <span className="sc-stat-label">Elapsed</span>
+                        <span className="sc-stat-value">{status.elapsed_mins?.toFixed(1)} min</span>
+                      </div>
+                      <div className="sc-tracking-stat">
+                        <span className="sc-stat-label">Total</span>
+                        <span className="sc-stat-value">{status.total_route_mins} min</span>
+                      </div>
+                      <div className="sc-tracking-stat">
+                        <span className="sc-stat-label">Between</span>
+                        <span className="sc-stat-value" style={{ fontSize: "11px" }}>
+                          {status.from_stop} → {status.to_stop}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* ML Results Table */}
       {mlLoading && (
@@ -276,4 +530,3 @@ function SystemConfig() {
 }
 
 export default SystemConfig;
-

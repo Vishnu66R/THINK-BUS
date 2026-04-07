@@ -13,7 +13,8 @@ import {
   CheckCircle, 
   RefreshCw, 
   Map as MapIcon, 
-  User 
+  User,
+  Clock
 } from "lucide-react";
 import { fetchStudentDashboard } from "../../api";
 import { useSimulatedDateTime } from "../../hooks/useSimulatedDateTime";
@@ -161,6 +162,22 @@ function Dashboard() {
             </span>
           </div>
         </div>
+
+        {/* Live ETA Timer Card */}
+        <div className="student-card eta-pulse-card">
+          <div className="student-card-icon eta-pulse-icon">
+            <Clock size={24} />
+          </div>
+          <div className="student-card-body">
+            <span className="student-card-label" style={{ color: "var(--color-primary-text)" }}>Live ETA</span>
+            <span className="student-card-value" style={{ fontSize: "1.4rem", color: "var(--color-primary-text)" }}>
+              {busInfo.tracking_active 
+                ? (busInfo.eta_mins > 0 ? `${busInfo.eta_mins} mins` : "Arriving 🚍")
+                : "Not Started"
+              }
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Details Row */}
@@ -174,10 +191,6 @@ function Dashboard() {
           <div className="detail-item">
             <span className="detail-label">Name</span>
             <span className="detail-value">{busInfo.driver_name}</span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Est. Arrival</span>
-            <span className="detail-value">{busInfo.estimated_arrival}</span>
           </div>
           <div className="detail-item">
             <span className="detail-label">Last Updated</span>
@@ -227,6 +240,7 @@ function Dashboard() {
             <MapView 
               stops={busInfo.stops.filter(s => s.lat !== 0 || s.lng !== 0)} 
               routeId={busInfo.route_id}
+              busId={busInfo.bus_id}
               center={
                 busInfo.stops.find(s => s.isBoarding && (s.lat !== 0 || s.lng !== 0)) 
                 ? [busInfo.stops.find(s => s.isBoarding).lat, busInfo.stops.find(s => s.isBoarding).lng]

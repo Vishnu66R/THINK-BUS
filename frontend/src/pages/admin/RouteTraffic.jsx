@@ -86,16 +86,25 @@ function RouteTraffic() {
     const res = await fetchAdminBuses();
     if (res.success && res.data) {
       setBuses(res.data);
-      if (res.data.length > 0) {
-        const defaultBus = res.data.find(b => b.id === 1) || res.data[0];
-        setSelectedBusId(defaultBus.id);
-      }
+      // Default to global track
+      setSelectedBusId('all');
+    }
+  }
+
+  function handleBusChange(newBusId) {
+    if (newBusId === 'all') {
+      setSelectedBusId('all');
+      setMapStops([]);
+    } else {
+      const parsedId = parseInt(newBusId, 10);
+      setMapStops([]); // Clear old stops immediately to prevent stale map
+      setSelectedBusId(parsedId);
     }
   }
 
   useEffect(() => {
     async function loadMapStops() {
-      if (!selectedBusId) return;
+      if (!selectedBusId || selectedBusId === 'all') return;
       const res = await fetchAdminBusStops(selectedBusId);
       if (res.success) {
         setMapStops(res.data || []);
@@ -265,7 +274,7 @@ function RouteTraffic() {
           </h3>
           <select 
             value={selectedBusId} 
-            onChange={e => setSelectedBusId(e.target.value)}
+            onChange={e => handleBusChange(e.target.value)}
             style={{
               padding: '8px 12px',
               borderRadius: '8px',
@@ -279,6 +288,7 @@ function RouteTraffic() {
               fontWeight: '600'
             }}
           >
+            <option value="all">All Buses (Global Track)</option>
             {buses.map(b => (
               <option key={b.id} value={b.id}>
                 {b.registration_number} {b.routes ? `(${b.routes.name})` : ''}
@@ -288,11 +298,26 @@ function RouteTraffic() {
         </div>
         
         <div style={{ flex: 1, borderRadius: '12px', overflow: 'hidden', minHeight: '500px', zIndex: 1, width: '100%', border: '1px solid rgba(255,255,255,0.2)' }}>
-          {selectedBusId && mapStops.length > 0 ? (
+          {selectedBusId === 'all' ? (
+            <MapView 
+              key="global-all"
+              multiRoutes={buses.filter(b => b.route_id).map(b => {
+                const rt = routes.find(r => r.id === b.route_id);
+                if (!rt || !rt.stops || rt.stops.length === 0) return null;
+                const mappedStops = rt.stops.map(s => ({
+                  id: s.id, name: s.stop_name, lat: parseFloat(s.latitude || 0), lng: parseFloat(s.longitude || 0), isBoarding: false
+                })).filter(s => s.lat !== 0 && s.lng !== 0);
+                return mappedStops.length > 0 ? { routeId: b.route_id, busId: b.id, stops: mappedStops } : null;
+              }).filter(Boolean)}
+              center={[8.8932, 76.6141]}
+              height="500px" 
+            />
+          ) : selectedBusId && mapStops.length > 0 ? (
             <MapView 
               key={selectedBusId}
               stops={mapStops.filter(s => s.lat !== 0 && s.lng !== 0)} 
               routeId={buses.find(b => b.id == selectedBusId)?.route_id}
+              busId={selectedBusId}
               center={[mapStops[0].lat, mapStops[0].lng]}
               height="500px" 
             />

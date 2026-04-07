@@ -1,0 +1,41 @@
+Bus 5 -> route_id=5 -> route_name='Paravoor'
+
+Stops returned to frontend (what MapView renders):
+  [1] Paravoor: (8.80832, 76.66998)
+  [2] Nedumgolam: (8.83754, 76.68612)
+  [3] Thirumukku: (8.86175, 76.70551)
+  [4] Kallumthazham: (8.90305, 76.62367)
+  [5] Moonamkutty: (8.90915, 76.62488)
+  [6] Karicode: (8.9167, 76.63256)
+  [7] Chandanathope: (8.93052, 76.63831)
+  [8] College Of Engineering Perumon: (8.965496, 76.617311)
+
+============================================================
+CROSS-CHECK: Coordinate verification with Google Maps approximate locations
+============================================================
+  Paravoor: DB=(8.80832,76.66998) Expected~(8.806,76.67) -> OK
+  Nedumgolam: DB=(8.83754,76.68612) Expected~(8.838,76.686) -> OK
+  Thirumukku: DB=(8.86175,76.70551) Expected~(8.862,76.705) -> OK
+  Kallumthazham: DB=(8.90305,76.62367) Expected~(8.903,76.624) -> OK
+  Moonamkutty: DB=(8.90915,76.62488) Expected~(8.909,76.625) -> OK
+  Karicode: DB=(8.9167,76.63256) Expected~(8.917,76.633) -> OK
+  Chandanathope: DB=(8.93052,76.63831) Expected~(8.931,76.638) -> OK
+  College Of Engineering Perumon: DB=(8.965496,76.617311) Expected~(8.965,76.617) -> OK
+
+============================================================
+CHECK ALL 7 ROUTES: route_id in bus -> route name shown in dropdown
+============================================================
+  Bus 1 (KL-02-B-2001): route_id=1, dropdown shows: 'Karunagapally'
+    First 3 stops: ['Karunagapally', 'Kuttivattom', 'Edapallykkotta']
+  Bus 2 (KL-02-B-2002): route_id=2, dropdown shows: 'Cheerankavu'
+    First 3 stops: ['Neduvathoor', 'Ambalathumkala', 'Ezhukone']
+  Bus 3 (KL-02-B-2003): route_id=3, dropdown shows: 'Kottarakkara'
+    First 3 stops: ['Kottarakkara', 'Kottarakkara Railway Station', 'Nedumpayikkulam']
+  Bus 4 (KL-02-B-2004): route_id=4, dropdown shows: 'Kottiyam'
+    First 3 stops: ['Kottiyam', 'Umayanalloor', 'Pallimukku']
+  Bus 5 (KL-02-B-2005): route_id=5, dropdown shows: 'Paravoor'
+    First 3 stops: ['Paravoor', 'Nedumgolam', 'Thirumukku']
+  Bus 6 (KL-02-B-2006): route_id=6, dropdown shows: 'Mevarom'
+    First 3 stops: ['Mevarom', 'Thattamala', 'Madanada']
+  Bus 7 (KL-02-B-2007): route_id=7, dropdown shows: 'Paripally'
+    First 3 stops: ['Paripally', 'Kalluvathukal', 'Karamcode']
