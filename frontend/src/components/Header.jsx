@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 import { Sun, Moon, User, Calendar, Clock } from "lucide-react";
 import "./Header.css";
 
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = "http://192.168.18.134:8000";
 
 function Header({
   title = "Think-Bus",

@@ -16,7 +16,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = "http://192.168.18.134:8000";
 
 // Component to dynamically fetch and draw OSRM route, and animate bus based on real tracking data
 function RealRoadRoute({ stops, routeId, busId, multiRoutes }) {

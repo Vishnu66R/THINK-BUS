@@ -24,6 +24,9 @@ python -m pip install pandas
 uvicorn main:app --reload
 The backend runs at: **http://localhost:8000**
 
+For mobile devices
+uvicorn main:app --host 0.0.0.0 --reload
+
 
 Run the Frontend (React)
 cd frontend
@@ -31,6 +34,10 @@ npm install
 npm install jspdf jspdf-autotable
 npm run dev
 The frontend runs at: **http://localhost:5173**
+
+For mobile devices
+npm run dev -- --host
+The frontend runs at: **http://ipv4:5173**
 
 
 ## 🔌 API Reference

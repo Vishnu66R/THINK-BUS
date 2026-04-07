@@ -4,7 +4,7 @@
 // Change BASE_URL here if your backend runs on a different port.
 // ------------------------------------------------------------
 
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = "http://192.168.18.134:8000";
 
 // GET /routes — fetch all available routes for signup selection
 export async function fetchRoutes() {
