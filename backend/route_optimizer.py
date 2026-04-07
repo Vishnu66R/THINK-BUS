@@ -129,15 +129,18 @@ def run_rerouting(ml_result):
 
     for b in active_buses:
         for stop in route_stops:
-            if stop['route_id'] == b['route_id'] and demand.get(stop['id'], 0) > 0:
+            has_demand = demand.get(stop['id'], 0) > 0
+            is_college = "College" in stop.get('stop_name', '')
+            
+            if stop['route_id'] == b['route_id'] and (has_demand or is_college):
                 loc = loc_map.get(stop['id'])
                 active_bus_stops[b['id']].append({
                     "stop_id": stop['id'],
-                    "demand": demand[stop['id']],
+                    "demand": demand.get(stop['id'], 0),
                     "stop_name": stop['stop_name'],
                     "location": loc
                 })
-                active_bus_loads[b['id']] += demand[stop['id']]
+                active_bus_loads[b['id']] += demand.get(stop['id'], 0)
 
     # 4. Reallocate Stranded Stops (Proximity + Capacity)
     # We find the nearest active bus (based on its existing stops' average center or nearest stop)
@@ -178,7 +181,16 @@ def run_rerouting(ml_result):
     rerouted_results = []
     
     for b in active_buses:
-        stops = active_bus_stops[b['id']]
+        # De-duplicate geographic stops (e.g. stranded "College" vs active "College")
+        merged_stops = {}
+        for st in active_bus_stops[b['id']]:
+            name_key = st['stop_name'].strip().lower()
+            if name_key in merged_stops:
+                merged_stops[name_key]['demand'] += st['demand']
+            else:
+                merged_stops[name_key] = dict(st)
+                
+        stops = list(merged_stops.values())
         if not stops: continue
         
         # Use OSRM cache to build distance matrix for these specific stops
@@ -193,27 +205,43 @@ def run_rerouting(ml_result):
         
         # Route Sequence: Nearest Neighbor traversal using Dijkstra distances
         if len(matrix) > 0:
+            dest_idx = -1
+            for idx, st in enumerate(stops):
+                if "College" in st.get('stop_name', ''):
+                    dest_idx = idx
+                    break
+
             unvisited = set(range(len(stops)))
             
-            # Find a start node: we could use the first standard stop
-            # or the one corresponding to route start_point. We'll just use index 0.
+            # Find a start node: generally index 0
             current = 0
+            if dest_idx == 0 and len(stops) > 1:
+                current = 1
+                
             route_sequence = [stops[current]]
-            unvisited.remove(current)
+            if current in unvisited:
+                unvisited.remove(current)
+                
+            # Withhold the destination terminal college from standard TSP traversal
+            if dest_idx != -1 and dest_idx in unvisited:
+                unvisited.remove(dest_idx)
             
             total_duration_sec = 0
             
             while unvisited:
-                # Dijkstra computes shortest paths from current node
                 distances = dijkstra_distances(matrix, current)
-                
-                # Nearest unvisited node
                 nxt = min(unvisited, key=lambda n: distances[n])
                 total_duration_sec += distances[nxt]
                 
                 route_sequence.append(stops[nxt])
                 unvisited.remove(nxt)
                 current = nxt
+                
+            # Final routing step: Go from the last active stop directly to the college
+            if dest_idx != -1 and dest_idx != current:
+                distances = dijkstra_distances(matrix, current)
+                total_duration_sec += distances[dest_idx]
+                route_sequence.append(stops[dest_idx])
                 
             orig_route = route_map.get(b['route_id'], {}).get('name', 'Unknown')
             
